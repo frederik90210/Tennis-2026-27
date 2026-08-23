@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tennis 2026" />
+  <link rel="apple-touch-icon" href="https://placehold.co/180x180/065f46/ffffff?text=🎾" />
   <title>Tennis Wintersaison 2026/2027</title>
   
   <!-- Tailwind CSS CDN -->
@@ -121,10 +125,10 @@
       HelpCircle: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />,
       ChevronLeft: (p) => <Icon {...p} path={<polyline points="15 18 9 12 15 6"/>} />,
       ChevronRight: (p) => <Icon {...p} path={<polyline points="9 18 15 12 9 6"/>} />,
-      Save: (p) => <Icon {...p} path={<><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></>} />
+      Save: (p) => <Icon {...p} path={<><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></>} />,
+      Smartphone: (p) => <Icon {...p} path={<><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></>} />
     };
 
-    /* Player Initial Dataset */
     const INITIAL_PLAYERS = [
       { id: 'FB', name: 'Frank B.', role: '1x / Monat', note: 'Max. 1x pro Monat & gemeinsam mit Philipp U.', rating: 5 },
       { id: 'PU', name: 'Philipp U.', role: '5x / Saison', note: 'Max. 5x pro Saison, nur mit Top-Spielern & gemeinsam mit Frank B.', rating: 5 },
@@ -140,7 +144,6 @@
       { id: 'MZ', name: 'Martin Z.', role: '1x / Monat', note: 'Maximal 1x pro Monat', rating: 1 },
     ];
 
-    /* Player Restrictions Rules */
     const PLAYER_RESTRICTIONS = {
       PU: { maxSeason: 5, label: 'Max. 5 Spiele/Saison, nur mit Top-Spielern & immer gemeinsam mit Frank B.' },
       MC: { dates: ['2026-10-12', '2026-10-30'], months: [12], label: 'Gesperrt: 12.10., 30.10. & den gesamten Dezember' },
@@ -152,7 +155,6 @@
       MZ: { maxPerMonth: 1, label: 'Max. 1x pro Monat' }
     };
 
-    /* Initial Schedule Dataset */
     const INITIAL_SCHEDULE = [
       { week: 1, date: '2026-09-21', players: ['ED', 'FD', 'HR', 'MZ'] },
       { week: 2, date: '2026-09-28', players: ['PU', 'FB', 'VK', 'JW'] },
@@ -189,51 +191,65 @@
 
     const INITIAL_PAID_STATUS = {};
 
-    /* Guided Tutorial Steps Definition */
     const TUTORIAL_STEPS = [
       {
+        type: 'standard',
         title: "Willkommen zum Tennis Spielplan! 🎾",
         text: "Mit dieser App behältst du immer den perfekten Überblick über alle Spieltage, Termine und Aufstellungen der Wintersaison 2026/2027.",
         targetTab: 'plan',
         highlightId: null
       },
       {
+        type: 'standard',
         title: "Spieler-Filter 👥",
         text: "Klicke im Spielplan auf '👥 Alle Spieler', um gezielt nur deine eigenen Spieltage anzuzeigen oder zu prüfen, wann deine Mitspieler eingeteilt sind.",
         targetTab: 'plan',
         highlightId: 'tutorial-player-filter'
       },
       {
+        type: 'standard',
         title: "Vergangene Spiele ausblenden 👁️",
         text: "Nutze diesen Schalter, um bereits vergangene Spieltage automatisch auszublenden. So siehst du immer sofort die nächsten bevorstehenden Matches.",
         targetTab: 'plan',
         highlightId: 'tutorial-past-toggle'
       },
       {
+        type: 'standard',
         title: "WhatsApp Aufstellung teilen 💬",
         text: "Mit dem 'WhatsApp'-Button bei jedem Spieltag kopierst du die gewählte Doppel-Aufstellung direkt in deine Zwischenablage zum Teilen in eure Gruppe!",
         targetTab: 'plan',
         highlightId: 'tutorial-whatsapp-btn'
       },
       {
+        type: 'standard',
         title: "Meine Termine & Kalender-Export 📅",
         text: "Im Reiter 'Meine Termine' wählst du deinen Namen aus und kannst alle deine Spieltage mit nur einem Klick direkt in deinen iPhone- oder Android-Kalender (.ics) speichern!",
         targetTab: 'myDates',
         highlightId: 'tutorial-my-dates-sec'
       },
       {
+        type: 'standard',
         title: "Kosten & Bezahlung 💳",
         text: "Hier siehst du die faire Kostenberechnung der Abogebühr. Die Kosten werden anteilig nach deinen tatsächlichen Einsätzen berechnet. Per Klick kannst du deinen Beitrag direkt per PayPal an Erwin D. überweisen.",
         targetTab: 'costs',
         highlightId: 'tutorial-costs-sec'
       },
       {
+        type: 'standard',
         title: "Dunkelmodus 🌙",
         text: "Mit diesem Button wechselst du jederzeit bequem zwischen dem hellen und dem augenschonenden dunklen Design – ideal für die Nutzung am Abend oder bei hellem Sonnenlicht.",
         targetTab: 'plan',
         highlightId: 'tutorial-dark-toggle'
       },
       {
+        type: 'homescreen',
+        title: "App auf dem Hauptbildschirm speichern 📲",
+        text: "Möchtest du diese App direkt auf deinen Smartphone-Hauptbildschirm (Home-Bildschirm) speichern, um sie wie eine normale App mit einem Klick zu öffnen?",
+        targetTab: 'plan',
+        highlightId: null
+      },
+      {
+        type: 'standard',
         title: "Alles startklar! 🏆",
         text: "Das war's schon! Über das Fragezeichen-Symbol 'Hilfe' kannst du dieses Tutorial jederzeit wieder starten.\n\nLiebe Grüße Frederik :)",
         targetTab: 'plan',
@@ -262,7 +278,10 @@
       const [copiedPersonalTermine, setCopiedPersonalTermine] = useState(false);
       const [saveNoticeOpen, setSaveNoticeOpen] = useState(false);
 
+      /* Tutorial and Homescreen App Installation State */
       const [tutorialStep, setTutorialStep] = useState(null);
+      const [homeScreenPromptChoice, setHomeScreenPromptChoice] = useState(null);
+      const [selectedBrowserInstructions, setSelectedBrowserInstructions] = useState(null);
 
       const ABO_STUNDENSATZ = 590;
       const STUNDEN_PRO_SPIELTAG = 2;
@@ -317,7 +336,6 @@
         }
       };
 
-      /* Export updated state into index.html download for GitHub update */
       const handleSaveUpdatedHtml = () => {
         const fullSource = document.documentElement.outerHTML;
 
@@ -344,6 +362,8 @@
       };
 
       const startTutorial = () => {
+        setHomeScreenPromptChoice(null);
+        setSelectedBrowserInstructions(null);
         setTutorialStep(0);
         setActiveTab(TUTORIAL_STEPS[0].targetTab);
       };
@@ -370,7 +390,6 @@
         setTutorialStep(null);
       };
 
-      /* Rule Validation Calculations */
       const validationResults = useMemo(() => {
         const issues = [];
         const monthlyCounts = {};
@@ -482,7 +501,6 @@
         });
       }, [schedule, players, GESAMT_ABO_KOSTEN]);
 
-      /* Match Balance Algorithm */
       const getMatchBalance = (assignedPlayerIds) => {
         if (!assignedPlayerIds || assignedPlayerIds.length === 0) {
           return { avg: 0, label: 'K.A.', teamA: [], teamB: [], scoreA: 0, scoreB: 0, color: 'bg-stone-200 text-stone-700 dark:bg-zinc-800 dark:text-zinc-300' };
@@ -643,16 +661,14 @@
         }`}>
           <div className="max-w-6xl mx-auto space-y-3 sm:space-y-6 w-full">
             
-            {/* Header Banner - Clean Centered Layout with Top Right Action Controls */}
+            {/* Header Banner */}
             <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-white rounded-2xl p-3.5 sm:p-6 shadow-xl border border-emerald-800/40 relative overflow-hidden">
-              {/* Tennis Ball Background Symbol */}
               <div className="absolute -right-6 -bottom-8 opacity-20 pointer-events-none text-emerald-300">
                 <TennisBallIcon className="w-44 h-44 sm:w-56 sm:h-56" />
               </div>
 
               {/* Action Controls in Top-Right Corner */}
               <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
-                {/* Save Icon Button in Admin Mode */}
                 {isAdminMode && (
                   <button
                     onClick={handleSaveUpdatedHtml}
@@ -664,7 +680,6 @@
                   </button>
                 )}
 
-                {/* Admin Lock Toggle Button (Shown in Costs Tab or when Admin Mode active) */}
                 {(activeTab === 'costs' || isAdminMode) && (
                   <button 
                     onClick={handleAdminToggle}
@@ -694,7 +709,7 @@
                 </h1>
               </div>
 
-              {/* Navigation Tabs - Multi-line wrapping on mobile screens */}
+              {/* Navigation Tabs */}
               <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-3 border-t border-emerald-800/40">
                 <button
                   onClick={() => setActiveTab('plan')}
@@ -729,7 +744,6 @@
                   <Icons.Wallet className="w-4 h-4" /> Kosten & Bezahlung
                 </button>
 
-                {/* Tutorial Question Mark Button */}
                 <button
                   onClick={startTutorial}
                   className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md active:scale-95 border ${
@@ -743,7 +757,6 @@
                   <span>Hilfe</span>
                 </button>
 
-                {/* Dark Mode Toggle Button */}
                 <button
                   id="tutorial-dark-toggle"
                   onClick={() => setDarkMode(!darkMode)}
@@ -787,13 +800,13 @@
               </div>
             </div>
 
-            {/* TAB 1: SPIELPLAN */}
+            {}
             {activeTab === 'plan' && (
               <div className="space-y-3 sm:space-y-4">
                 
                 {/* Filter Toolbar */}
                 <div className={`p-2.5 sm:p-3 rounded-xl border shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-200/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-100 border-stone-300/80'
                 }`}>
                   <div 
                     id="tutorial-player-filter" 
@@ -805,7 +818,7 @@
                       value={selectedPlayer}
                       onChange={(e) => setSelectedPlayer(e.target.value)}
                       className={`touch-target w-full px-3 py-2.5 rounded-xl font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none ${
-                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-100 border-stone-300 text-zinc-800'
+                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/80 border-stone-300 text-zinc-800'
                       }`}
                     >
                       <option value="ALL">👥 Alle Spieler</option>
@@ -819,7 +832,7 @@
                     id="tutorial-past-toggle" 
                     className={`touch-target flex items-center justify-between gap-3 px-3.5 py-2 border rounded-xl transition-all ${
                       currentTutorialObj?.highlightId === 'tutorial-past-toggle' ? 'tutorial-highlight ring-2 ring-amber-400' : ''
-                    } ${darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-stone-100 border-stone-300'}`}
+                    } ${darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-stone-200/80 border-stone-300'}`}
                   >
                     <span className="text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap">
                       {hidePastGames ? <Icons.EyeOff className="w-4 h-4 text-zinc-400" /> : <Icons.Eye className="w-4 h-4 text-emerald-600" />}
@@ -836,7 +849,7 @@
 
                 {filteredSchedule.length === 0 ? (
                   <div className={`p-6 sm:p-8 rounded-2xl text-center border space-y-2 ${
-                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                   }`}>
                     <p className="text-zinc-500 dark:text-zinc-400 font-semibold text-sm">Keine passenden Spieltage gefunden.</p>
                     {hidePastGames && (
@@ -859,7 +872,7 @@
                         <div 
                           key={item.week}
                           className={`rounded-2xl border shadow-sm transition-all overflow-hidden flex flex-col justify-between ${
-                            darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-200/90 border-stone-300/80'
+                            darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-100 border-stone-300/80'
                           } ${isPast ? 'opacity-50' : ''}`}
                         >
                           <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-emerald-50 p-3 sm:p-3.5 flex items-center justify-between border-b border-emerald-800/50">
@@ -900,7 +913,7 @@
 
                             {/* Matchup Teams */}
                             <div className={`p-2.5 rounded-xl border text-xs space-y-1 ${
-                              darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
+                              darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/70 border-stone-300/80'
                             }`}>
                               <div className="flex items-center justify-between text-zinc-500 dark:text-zinc-400 font-semibold text-[11px] mb-1">
                                 <span>Empfohlenes Doppel</span>
@@ -912,13 +925,13 @@
                               </div>
                               <div className="grid grid-cols-1 gap-1">
                                 <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border font-medium ${
-                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-200/70 border-rose-200/80 text-zinc-800'
+                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-100 border-rose-200/80 text-zinc-800'
                                 }`}>
                                   <span className="text-rose-600 font-bold flex-shrink-0">Team A:</span>
                                   <span className="text-center flex-1 font-semibold">{balance.teamA.map(p => p.name).join(' - ')}</span>
                                 </div>
                                 <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border font-medium ${
-                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-200/70 border-blue-200/80 text-zinc-800'
+                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-100 border-blue-200/80 text-zinc-800'
                                 }`}>
                                   <span className="text-blue-600 font-bold flex-shrink-0">Team B:</span>
                                   <span className="text-center flex-1 font-semibold">{balance.teamB.map(p => p.name).join(' - ')}</span>
@@ -996,13 +1009,12 @@
             )}
 
             {}
-            {/* TAB 2: MEINE TERMINE */}
             {activeTab === 'myDates' && (
               <div id="tutorial-my-dates-sec" className={`space-y-4 rounded-2xl transition-all ${
                 currentTutorialObj?.highlightId === 'tutorial-my-dates-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
               }`}>
                 <div className={`p-4 sm:p-5 rounded-2xl border shadow-sm space-y-3 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                 }`}>
                   <div className="space-y-1">
                     <h2 className="text-base sm:text-lg font-bold">Wähle deinen Namen für deine Termine:</h2>
@@ -1016,7 +1028,7 @@
                       value={myTerminePlayer}
                       onChange={(e) => setMyTerminePlayer(e.target.value)}
                       className={`touch-target w-full px-3.5 py-2.5 rounded-xl text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-100 border-stone-300 text-zinc-800'
+                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/80 border-stone-300 text-zinc-800'
                       }`}
                     >
                       {sortedPlayers.map(p => (
@@ -1030,10 +1042,10 @@
 
                 {myPlayerObj && (
                   <div className={`rounded-2xl border shadow-sm overflow-hidden p-4 sm:p-6 space-y-4 ${
-                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                   }`}>
                     <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border ${
-                      darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
+                      darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/70 border-stone-300/80'
                     }`}>
                       <div>
                         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Persönlicher Terminkalender</span>
@@ -1087,7 +1099,7 @@
               </div>
             )}
 
-            {/* TAB 3: KOSTEN & BEZAHLUNG */}
+            {}
             {activeTab === 'costs' && (
               <div id="tutorial-costs-sec" className={`space-y-4 rounded-2xl transition-all ${
                 currentTutorialObj?.highlightId === 'tutorial-costs-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
@@ -1125,7 +1137,7 @@
                         <div 
                           key={p.id}
                           className={`rounded-2xl border shadow-sm p-4 flex flex-col justify-between space-y-4 relative overflow-hidden transition ${
-                            darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                            darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
@@ -1142,7 +1154,7 @@
                           </div>
 
                           <div className={`p-3 rounded-xl border flex items-center justify-between ${
-                            darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
+                            darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/70 border-stone-300/80'
                           }`}>
                             <div>
                               <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Einsätze</p>
@@ -1187,11 +1199,11 @@
               </div>
             )}
 
-            {/* ADMIN TABS */}
+            {}
             {isAdminMode && activeTab === 'players' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                 }`}>
                   <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
                     <Icons.Users className="w-5 h-5 text-amber-500" /> Spieler-Karteikarten & Stärke-Ratings
@@ -1206,7 +1218,7 @@
                     <div 
                       key={p.id}
                       className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
-                        darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                        darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -1246,10 +1258,11 @@
               </div>
             )}
 
+            {}
             {isAdminMode && activeTab === 'rules' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                 }`}>
                   <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
                     <Icons.ShieldCheck className="w-5 h-5 text-amber-500" /> Sperrzeiten & Regel-Validierung
@@ -1260,7 +1273,7 @@
                 </div>
 
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                 }`}>
                   <h3 className="font-bold text-sm flex items-center gap-2">
                     {validationResults.length > 0 ? (
@@ -1289,7 +1302,7 @@
                 </div>
 
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                 }`}>
                   <h3 className="font-bold text-sm">Hinterlegte Sperrdaten der Spieler:</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
@@ -1297,7 +1310,7 @@
                       const player = players.find(p => p.id === pId);
                       return (
                         <div key={pId} className={`p-3 rounded-xl border space-y-1 ${
-                          darkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
+                          darkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-stone-200/70 border-stone-300/80'
                         }`}>
                           <span className="font-bold text-emerald-700 dark:text-emerald-400">{player?.name || pId}</span>
                           <p className="text-zinc-500 dark:text-zinc-400 font-medium">{res.label}</p>
@@ -1311,7 +1324,7 @@
 
           </div>
 
-          {/* TUTORIAL OVERLAY MODAL - Vertically and Horizontally Centered on all screen sizes */}
+          {}
           {tutorialStep !== null && currentTutorialObj && (
             <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4 pointer-events-auto">
               <div className="w-full max-w-md bg-zinc-900 border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200 relative z-30">
@@ -1333,12 +1346,126 @@
                   </button>
                 </div>
 
-                <div className="space-y-2">
-                  <h3 className="text-base sm:text-lg font-bold text-amber-300">{currentTutorialObj.title}</h3>
-                  <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed whitespace-pre-line">
-                    {currentTutorialObj.text}
-                  </p>
-                </div>
+                {currentTutorialObj.type === 'homescreen' ? (
+                  <div className="space-y-3.5">
+                    <h3 className="text-base sm:text-lg font-bold text-amber-300 flex items-center gap-2">
+                      <Icons.Smartphone className="w-5 h-5 text-amber-400" />
+                      {currentTutorialObj.title}
+                    </h3>
+
+                    {homeScreenPromptChoice === null && (
+                      <div className="space-y-3 pt-1">
+                        <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed">
+                          Möchtest du diese Web-App als eigenes Icon auf dem Hauptbildschirm deines Smartphones speichern?
+                        </p>
+                        <div className="grid grid-cols-2 gap-2.5 pt-2">
+                          <button
+                            onClick={() => setHomeScreenPromptChoice('yes')}
+                            className="touch-target bg-amber-400 hover:bg-amber-300 text-zinc-950 font-extrabold px-3 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition"
+                          >
+                            Ja, gerne! 👍
+                          </button>
+                          <button
+                            onClick={() => {
+                              setHomeScreenPromptChoice('no');
+                              nextTutorialStep();
+                            }}
+                            className="touch-target bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold px-3 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shadow-md active:scale-95 transition"
+                          >
+                            Nein, danke
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {homeScreenPromptChoice === 'yes' && (
+                      <div className="space-y-3">
+                        <p className="text-xs text-zinc-300 font-bold">Welchen Internet-Browser nutzt du aktuell?</p>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          <button
+                            onClick={() => setSelectedBrowserInstructions('safari')}
+                            className={`touch-target py-2 px-1 rounded-xl text-xs font-bold border transition ${
+                              selectedBrowserInstructions === 'safari'
+                                ? 'bg-amber-400 text-zinc-950 border-amber-300'
+                                : 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700'
+                            }`}
+                          >
+                            Safari 🧭
+                          </button>
+                          <button
+                            onClick={() => setSelectedBrowserInstructions('chrome')}
+                            className={`touch-target py-2 px-1 rounded-xl text-xs font-bold border transition ${
+                              selectedBrowserInstructions === 'chrome'
+                                ? 'bg-amber-400 text-zinc-950 border-amber-300'
+                                : 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700'
+                            }`}
+                          >
+                            Chrome 🌐
+                          </button>
+                          <button
+                            onClick={() => setSelectedBrowserInstructions('firefox')}
+                            className={`touch-target py-2 px-1 rounded-xl text-xs font-bold border transition ${
+                              selectedBrowserInstructions === 'firefox'
+                                ? 'bg-amber-400 text-zinc-950 border-amber-300'
+                                : 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700'
+                            }`}
+                          >
+                            Firefox 🦊
+                          </button>
+                        </div>
+
+                        {selectedBrowserInstructions === 'safari' && (
+                          <div className="p-3 bg-zinc-950/80 border border-amber-400/30 rounded-xl space-y-1.5 text-xs text-zinc-200">
+                            <p className="font-bold text-amber-300">Anleitung für Apple Safari (iPhone / iPad):</p>
+                            <ol className="list-decimal list-inside space-y-1 text-[11px] leading-relaxed">
+                              <li>Tippe unten in der Safari-Leiste auf das <strong>Teilen-Symbol</strong> 📤 (Quadrat mit Pfeil).</li>
+                              <li>Scrolle in der Liste nach unten und wähle <strong>„Zum Home-Bildschirm“</strong> ➕.</li>
+                              <li>Tippe oben rechts auf <strong>„Hinzufügen“</strong>. Fertig!</li>
+                            </ol>
+                          </div>
+                        )}
+
+                        {selectedBrowserInstructions === 'chrome' && (
+                          <div className="p-3 bg-zinc-950/80 border border-amber-400/30 rounded-xl space-y-1.5 text-xs text-zinc-200">
+                            <p className="font-bold text-amber-300">Anleitung für Google Chrome (Android & iOS):</p>
+                            <ol className="list-decimal list-inside space-y-1 text-[11px] leading-relaxed">
+                              <li>Tippe oben oder unten rechts auf das <strong>Drei-Punkte-Menü (⋮)</strong>.</li>
+                              <li>Wähle die Option <strong>„Zum Startbildschirm hinzufügen“</strong> (oder <i>„App installieren“</i>).</li>
+                              <li>Bestätige die Eingabe mit <strong>„Hinzufügen“</strong>. Fertig!</li>
+                            </ol>
+                          </div>
+                        )}
+
+                        {selectedBrowserInstructions === 'firefox' && (
+                          <div className="p-3 bg-zinc-950/80 border border-amber-400/30 rounded-xl space-y-1.5 text-xs text-zinc-200">
+                            <p className="font-bold text-amber-300">Anleitung für Mozilla Firefox:</p>
+                            <ol className="list-decimal list-inside space-y-1 text-[11px] leading-relaxed">
+                              <li>Tippe auf das <strong>Firefox Menü (⋮)</strong>.</li>
+                              <li>Wähle <strong>„Zum Startbildschirm hinzufügen“</strong> oder <strong>„Installieren“</strong>.</li>
+                              <li>Bestätige den Vorgang. Fertig!</li>
+                            </ol>
+                          </div>
+                        )}
+
+                        {selectedBrowserInstructions && (
+                          <button
+                            onClick={nextTutorialStep}
+                            className="touch-target w-full bg-amber-400 hover:bg-amber-300 text-zinc-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow-md mt-2 flex items-center justify-center gap-1"
+                          >
+                            Verstanden & Weiter <Icons.ChevronRight className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <h3 className="text-base sm:text-lg font-bold text-amber-300">{currentTutorialObj.title}</h3>
+                    <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed whitespace-pre-line">
+                      {currentTutorialObj.text}
+                    </p>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
                   <button
@@ -1364,22 +1491,24 @@
                     ))}
                   </div>
 
-                  <button
-                    onClick={nextTutorialStep}
-                    className="touch-target px-4 py-2 bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold rounded-xl text-xs flex items-center gap-1 transition shadow-md"
-                  >
-                    {tutorialStep < TUTORIAL_STEPS.length - 1 ? (
-                      <>Weiter <Icons.ChevronRight className="w-4 h-4" /></>
-                    ) : (
-                      'Fertig 👍'
-                    )}
-                  </button>
+                  {currentTutorialObj.type !== 'homescreen' && (
+                    <button
+                      onClick={nextTutorialStep}
+                      className="touch-target px-4 py-2 bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold rounded-xl text-xs flex items-center gap-1 transition shadow-md"
+                    >
+                      {tutorialStep < TUTORIAL_STEPS.length - 1 ? (
+                        <>Weiter <Icons.ChevronRight className="w-4 h-4" /></>
+                      ) : (
+                        'Fertig 👍'
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
-          {/* SAVE CONFIRMATION MODAL */}
+          {}
           {saveNoticeOpen && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1419,7 +1548,7 @@
             </div>
           )}
 
-          {/* PIN MODAL */}
+          {}
           {pinModalOpen && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-xs rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1484,7 +1613,7 @@
             </div>
           )}
 
-          {/* PAYPAL MODAL */}
+          {}
           {paypalModalOpen && selectedPaypalPlayer && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
