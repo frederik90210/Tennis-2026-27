@@ -126,7 +126,8 @@
       ChevronLeft: (p) => <Icon {...p} path={<polyline points="15 18 9 12 15 6"/>} />,
       ChevronRight: (p) => <Icon {...p} path={<polyline points="9 18 15 12 9 6"/>} />,
       Save: (p) => <Icon {...p} path={<><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></>} />,
-      Smartphone: (p) => <Icon {...p} path={<><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></>} />
+      Smartphone: (p) => <Icon {...p} path={<><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></>} />,
+      WhatsApp: (p) => <Icon {...p} viewBox="0 0 24 24" path={<path fill="currentColor" stroke="none" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347zM12 2a10 10 0 0 0-8.384 15.474L2 22l4.67-1.224A10 10 0 1 0 12 2zm0 18a7.95 7.95 0 0 1-4.062-1.112l-.291-.173-2.775.727.74-2.707-.19-.302A7.957 7.957 0 1 1 12 20z"/>} />
     };
 
     const INITIAL_PLAYERS = [
@@ -216,7 +217,7 @@
       {
         type: 'standard',
         title: "WhatsApp Aufstellung teilen 💬",
-        text: "Mit dem 'WhatsApp'-Button bei jedem Spieltag kopierst du die gewählte Doppel-Aufstellung direkt in deine Zwischenablage zum Teilen in eure Gruppe!",
+        text: "Tippe einfach auf das WhatsApp-Symbol bei einem Spieltag, um die gewählte Doppel-Aufstellung direkt in WhatsApp mit eurer Gruppe zu teilen!",
         targetTab: 'plan',
         highlightId: 'tutorial-whatsapp-btn'
       },
@@ -608,7 +609,7 @@
         }));
       };
 
-      const copyWhatsAppText = (item, index) => {
+      const openWhatsApp = (item) => {
         const balance = getMatchBalance(item.players);
         const teamAText = balance.teamA.map(p => (isAdminMode ? `${p.name} (⭐${p.rating})` : p.name)).join(' + ');
         const teamBText = balance.teamB.map(p => (isAdminMode ? `${p.name} (⭐${p.rating})` : p.name)).join(' + ');
@@ -619,9 +620,12 @@
         }
         text += `\nViel Spaß auf dem Platz! 🏆`;
 
-        navigator.clipboard.writeText(text);
-        setCopiedIndex(index);
-        setTimeout(() => setCopiedIndex(null), 2500);
+        try {
+          navigator.clipboard.writeText(text);
+        } catch (e) {}
+
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
       };
 
       const openPaypalModalForPlayer = (player) => {
@@ -646,7 +650,6 @@
         myPlayerObj.dates.forEach(d => {
           text += `• ${formatDate(d.date)} (17:30 - 19:30 Uhr)\n`;
         });
-        text += `\nGesamtbeitrag: ${myPlayerObj.cost.toFixed(2)} €`;
 
         navigator.clipboard.writeText(text);
         setCopiedPersonalTermine(true);
@@ -982,20 +985,14 @@
                             )}
 
                             <button
-                              onClick={() => copyWhatsAppText(item, idx)}
-                              className={`touch-target text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-600/30 px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95 ml-auto ${
-                                currentTutorialObj?.highlightId === 'tutorial-whatsapp-btn' ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400/30 text-amber-900 dark:text-amber-200 border-amber-400' : ''
+                              id="tutorial-whatsapp-btn"
+                              onClick={() => openWhatsApp(item)}
+                              className={`touch-target p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition active:scale-95 ml-auto flex items-center justify-center ${
+                                currentTutorialObj?.highlightId === 'tutorial-whatsapp-btn' ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400 text-zinc-950 border-amber-400' : ''
                               }`}
+                              title="Aufstellung direkt in WhatsApp öffnen & teilen"
                             >
-                              {copiedIndex === idx ? (
-                                <>
-                                  <Icons.Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Kopiert!
-                                </>
-                              ) : (
-                                <>
-                                  <Icons.Share2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> WhatsApp
-                                </>
-                              )}
+                              <Icons.WhatsApp className="w-5 h-5" />
                             </button>
                           </div>
 
@@ -1051,7 +1048,7 @@
                         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Persönlicher Terminkalender</span>
                         <h3 className="text-xl font-black">{myPlayerObj.name}</h3>
                         <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
-                          {myPlayerObj.count} Termine in der Saison • {myPlayerObj.cost.toFixed(2)} € Gesamtbeitrag
+                          {myPlayerObj.count} Termine in der Saison
                         </p>
                       </div>
                     </div>
