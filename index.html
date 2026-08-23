@@ -284,7 +284,6 @@
       const [homeScreenPromptChoice, setHomeScreenPromptChoice] = useState(null);
       const [selectedBrowserInstructions, setSelectedBrowserInstructions] = useState(null);
 
-      /* Auto-scroll effect for tutorial highlights on mobile devices */
       useEffect(() => {
         if (tutorialStep !== null) {
           const step = TUTORIAL_STEPS[tutorialStep];
@@ -1130,11 +1129,11 @@
                     Das Hallen-Abo beträgt <strong>590 € pro Stunde</strong> für die gesamte Saison. Gespielt werden jeweils <strong>2 Stunden</strong> (Gesamtkosten 1.180 €). Die Kosten werden fair anteilig anhand der tatsächlich absolvierten Einsätze auf die Spieler aufgeteilt.<br />
                   </p>
                   <p className="text-xs sm:text-sm text-blue-300 font-medium">
-                    💳 <strong>Bezahlung:</strong> Die Abrechnung der Abogebühr erfolgt gesammelt per PayPal an <strong>Erwin D.</strong>
+                    💳 <strong>Bezahlung:</strong> Die Abrechnung der Abogebühr erfolgt per PayPal an <strong>Erwin D.</strong>
                   </p>
                   <div className="bg-amber-500/20 border border-amber-400/40 p-2.5 rounded-xl flex items-center gap-2 text-amber-200 text-xs font-semibold">
                     <Icons.Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                    <span><strong>Lichtgeld:</strong> Das Lichtgeld beträgt zusätzlich <strong>2 € pro Stunde</strong>.</span>
+                    <span><strong>Lichtgeld:</strong> Das Lichtgeld beträgt 2 € pro Stunde (4 € pro Spieltag)</span>
                   </div>
                 </div>
 
@@ -1643,7 +1642,7 @@
                     </div>
                     <div>
                       <h3 className="font-bold text-base">PayPal Bezahlung</h3>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Sammelüberweisung an Erwin D.</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Überweisung an Erwin D.</p>
                     </div>
                   </div>
                   <button 
@@ -1666,7 +1665,7 @@
                   <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs text-blue-700 dark:text-blue-300 font-medium space-y-1">
                     <p className="font-bold">ℹ️ Hinweis zur Überweisung:</p>
                     <p className="text-[11px] leading-relaxed">
-                      Die Bezahlung der Abogebühr geht gesammelt an Erwin D. Bitte gib bei der Überweisung deinen Namen ({selectedPaypalPlayer.name}) im Verwendungszweck an.
+                      Die Bezahlung der Abogebühr geht an Erwin D. Bitte gib bei der Überweisung deinen Namen ({selectedPaypalPlayer.name}) im Verwendungszweck an.
                     </p>
                   </div>
 
