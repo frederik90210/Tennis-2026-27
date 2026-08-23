@@ -275,7 +275,7 @@
       const [paypalModalOpen, setPaypalModalOpen] = useState(false);
       const [selectedPaypalPlayer, setSelectedPaypalPlayer] = useState(null);
       const [copiedPaypalLink, setCopiedPaypalLink] = useState(false);
-      const [myTerminePlayer, setMyTerminePlayer] = useState('FB');
+      const [myTerminePlayer, setMyTerminePlayer] = useState('');
       const [copiedPersonalTermine, setCopiedPersonalTermine] = useState(false);
       const [saveNoticeOpen, setSaveNoticeOpen] = useState(false);
 
@@ -641,7 +641,8 @@
       };
 
       const myPlayerObj = useMemo(() => {
-        return playerStats.find(p => p.id === myTerminePlayer) || playerStats[0];
+        if (!myTerminePlayer) return null;
+        return playerStats.find(p => p.id === myTerminePlayer) || null;
       }, [playerStats, myTerminePlayer]);
 
       const copyPersonalTermineWhatsApp = () => {
@@ -1028,6 +1029,7 @@
                         darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/80 border-stone-300 text-zinc-800'
                       }`}
                     >
+                      <option value="">-- Bitte Namen auswählen --</option>
                       {sortedPlayers.map(p => (
                         <option key={p.id} value={p.id}>
                           👤 {p.name}
