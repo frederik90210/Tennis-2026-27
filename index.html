@@ -31,7 +31,7 @@
       padding-top: env(safe-area-inset-top, 1rem);
     }
 
-    /* Hide scrollbars for clean horizontal tab scrolling on mobile */
+    /* Hide scrollbars for clean tab bar */
     .scrollbar-none::-webkit-scrollbar {
       display: none;
     }
@@ -70,7 +70,7 @@
     }
   </style>
 </head>
-<body class="bg-stone-200/60 text-zinc-800 antialiased selection:bg-emerald-200 min-h-screen w-full overflow-x-hidden">
+<body class="bg-stone-300/80 text-zinc-900 antialiased selection:bg-emerald-200 min-h-screen w-full overflow-x-hidden">
   
   <div id="root" class="w-full min-h-screen flex flex-col"></div>
 
@@ -639,7 +639,7 @@
 
       return (
         <div className={`min-h-screen w-full transition-colors duration-200 p-2 sm:p-4 md:p-6 font-sans pb-safe ${
-          darkMode ? 'bg-zinc-950 text-zinc-100' : 'bg-stone-200/60 text-zinc-800'
+          darkMode ? 'bg-zinc-950 text-zinc-100' : 'bg-stone-300/80 text-zinc-900'
         }`}>
           <div className="max-w-6xl mx-auto space-y-3 sm:space-y-6 w-full">
             
@@ -689,7 +689,7 @@
                     2026 / 2027
                   </span>
                 </div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white flex items-center justify-center gap-2 pt-0.5 text-center">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white flex items-center justify-center gap-2 pt-0.5 text-center">
                   🎾 Tennis Wintersaison
                 </h1>
               </div>
@@ -793,7 +793,7 @@
                 
                 {/* Filter Toolbar */}
                 <div className={`p-2.5 sm:p-3 rounded-xl border shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-100/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-200/90 border-stone-300/80'
                 }`}>
                   <div 
                     id="tutorial-player-filter" 
@@ -805,7 +805,7 @@
                       value={selectedPlayer}
                       onChange={(e) => setSelectedPlayer(e.target.value)}
                       className={`touch-target w-full px-3 py-2.5 rounded-xl font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none ${
-                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/70 border-stone-300 text-zinc-800'
+                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-100 border-stone-300 text-zinc-800'
                       }`}
                     >
                       <option value="ALL">👥 Alle Spieler</option>
@@ -819,7 +819,7 @@
                     id="tutorial-past-toggle" 
                     className={`touch-target flex items-center justify-between gap-3 px-3.5 py-2 border rounded-xl transition-all ${
                       currentTutorialObj?.highlightId === 'tutorial-past-toggle' ? 'tutorial-highlight ring-2 ring-amber-400' : ''
-                    } ${darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-stone-200/70 border-stone-300'}`}
+                    } ${darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-stone-100 border-stone-300'}`}
                   >
                     <span className="text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap">
                       {hidePastGames ? <Icons.EyeOff className="w-4 h-4 text-zinc-400" /> : <Icons.Eye className="w-4 h-4 text-emerald-600" />}
@@ -836,7 +836,7 @@
 
                 {filteredSchedule.length === 0 ? (
                   <div className={`p-6 sm:p-8 rounded-2xl text-center border space-y-2 ${
-                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                   }`}>
                     <p className="text-zinc-500 dark:text-zinc-400 font-semibold text-sm">Keine passenden Spieltage gefunden.</p>
                     {hidePastGames && (
@@ -859,7 +859,7 @@
                         <div 
                           key={item.week}
                           className={`rounded-2xl border shadow-sm transition-all overflow-hidden flex flex-col justify-between ${
-                            darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-100/90 border-stone-300/80'
+                            darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-200/90 border-stone-300/80'
                           } ${isPast ? 'opacity-50' : ''}`}
                         >
                           <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-emerald-50 p-3 sm:p-3.5 flex items-center justify-between border-b border-emerald-800/50">
@@ -900,7 +900,7 @@
 
                             {/* Matchup Teams */}
                             <div className={`p-2.5 rounded-xl border text-xs space-y-1 ${
-                              darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/50 border-stone-300/60'
+                              darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                             }`}>
                               <div className="flex items-center justify-between text-zinc-500 dark:text-zinc-400 font-semibold text-[11px] mb-1">
                                 <span>Empfohlenes Doppel</span>
@@ -912,13 +912,13 @@
                               </div>
                               <div className="grid grid-cols-1 gap-1">
                                 <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border font-medium ${
-                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-100 border-rose-200/80 text-zinc-800'
+                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-200/70 border-rose-200/80 text-zinc-800'
                                 }`}>
                                   <span className="text-rose-600 font-bold flex-shrink-0">Team A:</span>
                                   <span className="text-center flex-1 font-semibold">{balance.teamA.map(p => p.name).join(' - ')}</span>
                                 </div>
                                 <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border font-medium ${
-                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-100 border-blue-200/80 text-zinc-800'
+                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-200/70 border-blue-200/80 text-zinc-800'
                                 }`}>
                                   <span className="text-blue-600 font-bold flex-shrink-0">Team B:</span>
                                   <span className="text-center flex-1 font-semibold">{balance.teamB.map(p => p.name).join(' - ')}</span>
@@ -956,7 +956,7 @@
                           </div>
 
                           <div className={`px-3.5 py-2.5 border-t flex items-center justify-between gap-2 ${
-                            darkMode ? 'bg-zinc-950/40 border-zinc-800' : 'bg-stone-200/40 border-stone-300/50'
+                            darkMode ? 'bg-zinc-950/40 border-zinc-800' : 'bg-stone-100/60 border-stone-300/80'
                           }`}>
                             {isAdminMode && (
                               <button
@@ -995,13 +995,14 @@
               </div>
             )}
 
+            {}
             {/* TAB 2: MEINE TERMINE */}
             {activeTab === 'myDates' && (
               <div id="tutorial-my-dates-sec" className={`space-y-4 rounded-2xl transition-all ${
                 currentTutorialObj?.highlightId === 'tutorial-my-dates-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
               }`}>
                 <div className={`p-4 sm:p-5 rounded-2xl border shadow-sm space-y-3 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                 }`}>
                   <div className="space-y-1">
                     <h2 className="text-base sm:text-lg font-bold">Wähle deinen Namen für deine Termine:</h2>
@@ -1015,7 +1016,7 @@
                       value={myTerminePlayer}
                       onChange={(e) => setMyTerminePlayer(e.target.value)}
                       className={`touch-target w-full px-3.5 py-2.5 rounded-xl text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/70 border-stone-300 text-zinc-800'
+                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-100 border-stone-300 text-zinc-800'
                       }`}
                     >
                       {sortedPlayers.map(p => (
@@ -1029,10 +1030,10 @@
 
                 {myPlayerObj && (
                   <div className={`rounded-2xl border shadow-sm overflow-hidden p-4 sm:p-6 space-y-4 ${
-                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                   }`}>
                     <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border ${
-                      darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/50 border-stone-300/60'
+                      darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                     }`}>
                       <div>
                         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Persönlicher Terminkalender</span>
@@ -1124,7 +1125,7 @@
                         <div 
                           key={p.id}
                           className={`rounded-2xl border shadow-sm p-4 flex flex-col justify-between space-y-4 relative overflow-hidden transition ${
-                            darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                            darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
@@ -1141,7 +1142,7 @@
                           </div>
 
                           <div className={`p-3 rounded-xl border flex items-center justify-between ${
-                            darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/50 border-stone-300/60'
+                            darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                           }`}>
                             <div>
                               <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Einsätze</p>
@@ -1190,7 +1191,7 @@
             {isAdminMode && activeTab === 'players' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                 }`}>
                   <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
                     <Icons.Users className="w-5 h-5 text-amber-500" /> Spieler-Karteikarten & Stärke-Ratings
@@ -1205,7 +1206,7 @@
                     <div 
                       key={p.id}
                       className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
-                        darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                        darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -1248,7 +1249,7 @@
             {isAdminMode && activeTab === 'rules' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                 }`}>
                   <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
                     <Icons.ShieldCheck className="w-5 h-5 text-amber-500" /> Sperrzeiten & Regel-Validierung
@@ -1259,7 +1260,7 @@
                 </div>
 
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                 }`}>
                   <h3 className="font-bold text-sm flex items-center gap-2">
                     {validationResults.length > 0 ? (
@@ -1288,7 +1289,7 @@
                 </div>
 
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
-                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-200/90 border-stone-300/80'
                 }`}>
                   <h3 className="font-bold text-sm">Hinterlegte Sperrdaten der Spieler:</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
@@ -1296,7 +1297,7 @@
                       const player = players.find(p => p.id === pId);
                       return (
                         <div key={pId} className={`p-3 rounded-xl border space-y-1 ${
-                          darkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-stone-200/50 border-stone-300/60'
+                          darkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-stone-100 border-stone-300/80'
                         }`}>
                           <span className="font-bold text-emerald-700 dark:text-emerald-400">{player?.name || pId}</span>
                           <p className="text-zinc-500 dark:text-zinc-400 font-medium">{res.label}</p>
@@ -1310,9 +1311,9 @@
 
           </div>
 
-          {/* TUTORIAL OVERLAY MODAL */}
+          {/* TUTORIAL OVERLAY MODAL - Vertically and Horizontally Centered on all screen sizes */}
           {tutorialStep !== null && currentTutorialObj && (
-            <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-3 sm:p-4 pointer-events-auto">
+            <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4 pointer-events-auto">
               <div className="w-full max-w-md bg-zinc-900 border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200 relative z-30">
                 <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                   <div className="flex items-center gap-2">
