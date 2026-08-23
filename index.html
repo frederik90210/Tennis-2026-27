@@ -120,7 +120,8 @@
       Star: (p) => <Icon {...p} path={<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>} />,
       HelpCircle: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />,
       ChevronLeft: (p) => <Icon {...p} path={<polyline points="15 18 9 12 15 6"/>} />,
-      ChevronRight: (p) => <Icon {...p} path={<polyline points="9 18 15 12 9 6"/>} />
+      ChevronRight: (p) => <Icon {...p} path={<polyline points="9 18 15 12 9 6"/>} />,
+      Save: (p) => <Icon {...p} path={<><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></>} />
     };
 
     /* Player Initial Dataset */
@@ -139,7 +140,7 @@
       { id: 'MZ', name: 'Martin Z.', role: '1x / Monat', note: 'Maximal 1x pro Monat', rating: 1 },
     ];
 
-    /* Player Constraints Rules */
+    /* Player Restrictions Rules */
     const PLAYER_RESTRICTIONS = {
       PU: { maxSeason: 5, label: 'Max. 5 Spiele/Saison, nur mit Top-Spielern & immer gemeinsam mit Frank B.' },
       MC: { dates: ['2026-10-12', '2026-10-30'], months: [12], label: 'Gesperrt: 12.10., 30.10. & den gesamten Dezember' },
@@ -151,7 +152,7 @@
       MZ: { maxPerMonth: 1, label: 'Max. 1x pro Monat' }
     };
 
-    /* Schedule Initial Data */
+    /* Initial Schedule Dataset */
     const INITIAL_SCHEDULE = [
       { week: 1, date: '2026-09-21', players: ['ED', 'FD', 'HR', 'MZ'] },
       { week: 2, date: '2026-09-28', players: ['PU', 'FB', 'VK', 'JW'] },
@@ -185,6 +186,8 @@
       { week: 30, date: '2027-04-12', players: ['VK', 'JW', 'JK', 'HR'] },
       { week: 31, date: '2027-04-19', players: ['FR', 'MZ', 'ED', 'FD'] },
     ];
+
+    const INITIAL_PAID_STATUS = {};
 
     /* Guided Tutorial Steps Definition */
     const TUTORIAL_STEPS = [
@@ -251,12 +254,13 @@
       const [pinError, setPinError] = useState(false);
       const [hidePastGames, setHidePastGames] = useState(true);
       const [darkMode, setDarkMode] = useState(false);
-      const [paidStatus, setPaidStatus] = useState({});
+      const [paidStatus, setPaidStatus] = useState(INITIAL_PAID_STATUS);
       const [paypalModalOpen, setPaypalModalOpen] = useState(false);
       const [selectedPaypalPlayer, setSelectedPaypalPlayer] = useState(null);
       const [copiedPaypalLink, setCopiedPaypalLink] = useState(false);
       const [myTerminePlayer, setMyTerminePlayer] = useState('FB');
       const [copiedPersonalTermine, setCopiedPersonalTermine] = useState(false);
+      const [saveNoticeOpen, setSaveNoticeOpen] = useState(false);
 
       const [tutorialStep, setTutorialStep] = useState(null);
 
@@ -311,6 +315,32 @@
         } else {
           setPinError(true);
         }
+      };
+
+      /* Export updated state into index.html download for GitHub update */
+      const handleSaveUpdatedHtml = () => {
+        const fullSource = document.documentElement.outerHTML;
+
+        // Serialize updated state
+        const playersFormatted = JSON.stringify(players, null, 6);
+        const scheduleFormatted = JSON.stringify(schedule, null, 6);
+        const paidStatusFormatted = JSON.stringify(paidStatus, null, 6);
+
+        // Replace state constants in code string
+        let updatedSource = fullSource
+          .replace(/const INITIAL_PLAYERS = \[\s*[\s\S]*?\n\s*\];/m, `const INITIAL_PLAYERS = ${playersFormatted};`)
+          .replace(/const INITIAL_SCHEDULE = \[\s*[\s\S]*?\n\s*\];/m, `const INITIAL_SCHEDULE = ${scheduleFormatted};`)
+          .replace(/const INITIAL_PAID_STATUS = \{[\s\S]*?\};/m, `const INITIAL_PAID_STATUS = ${paidStatusFormatted};`);
+
+        const blob = new Blob(["<!DOCTYPE html>\n<html lang=\"de\" class=\"h-full\">\n" + updatedSource + "\n</html>"], { type: 'text/html;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "index.html");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setSaveNoticeOpen(true);
       };
 
       const startTutorial = () => {
@@ -613,27 +643,42 @@
         }`}>
           <div className="max-w-6xl mx-auto space-y-3 sm:space-y-6 w-full">
             
-            {/* Header Banner - Clean Horizontal Layout on Mobile */}
+            {/* Header Banner - Clean Centered Layout with Top Right Action Controls */}
             <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-white rounded-2xl p-3.5 sm:p-6 shadow-xl border border-emerald-800/40 relative overflow-hidden">
               {/* Tennis Ball Background Symbol */}
               <div className="absolute -right-6 -bottom-8 opacity-20 pointer-events-none text-emerald-300">
                 <TennisBallIcon className="w-44 h-44 sm:w-56 sm:h-56" />
               </div>
 
-              {/* Admin Lock Toggle Button - Positioned in top-right corner when in Kosten & Bezahlung or when Admin Mode active */}
-              {(activeTab === 'costs' || isAdminMode) && (
-                <button 
-                  onClick={handleAdminToggle}
-                  className={`absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 touch-target p-2 sm:p-2.5 rounded-xl border transition-all shadow-md active:scale-95 flex items-center justify-center ${
-                    isAdminMode 
-                      ? 'bg-amber-400 text-zinc-950 border-amber-300 shadow-amber-400/20' 
-                      : 'bg-zinc-800/80 text-zinc-300 border-zinc-700/80 hover:bg-zinc-700'
-                  }`}
-                  title={isAdminMode ? "Admin-Modus beenden" : "Admin-Modus freischalten (PIN 3100)"}
-                >
-                  {isAdminMode ? <Icons.Unlock className="w-5 h-5 font-bold" /> : <Icons.Lock className="w-5 h-5" />}
-                </button>
-              )}
+              {/* Action Controls in Top-Right Corner */}
+              <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
+                {/* Save Icon Button in Admin Mode */}
+                {isAdminMode && (
+                  <button
+                    onClick={handleSaveUpdatedHtml}
+                    className="touch-target p-2 sm:p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 border border-emerald-300 transition-all shadow-md active:scale-95 flex items-center justify-center font-bold gap-1.5"
+                    title="Änderungen als index.html für GitHub speichern"
+                  >
+                    <Icons.Save className="w-5 h-5" />
+                    <span className="hidden sm:inline text-xs font-bold">Speichern</span>
+                  </button>
+                )}
+
+                {/* Admin Lock Toggle Button (Shown in Costs Tab or when Admin Mode active) */}
+                {(activeTab === 'costs' || isAdminMode) && (
+                  <button 
+                    onClick={handleAdminToggle}
+                    className={`touch-target p-2 sm:p-2.5 rounded-xl border transition-all shadow-md active:scale-95 flex items-center justify-center ${
+                      isAdminMode 
+                        ? 'bg-amber-400 text-zinc-950 border-amber-300 shadow-amber-400/20' 
+                        : 'bg-zinc-800/80 text-zinc-300 border-zinc-700/80 hover:bg-zinc-700'
+                    }`}
+                    title={isAdminMode ? "Admin-Modus beenden" : "Admin-Modus freischalten (PIN 3100)"}
+                  >
+                    {isAdminMode ? <Icons.Unlock className="w-5 h-5 font-bold" /> : <Icons.Lock className="w-5 h-5" />}
+                  </button>
+                )}
+              </div>
               
               <div className="relative z-10 px-6 sm:px-12 space-y-1.5 text-center flex flex-col items-center justify-center">
                 <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
@@ -1329,6 +1374,46 @@
                     )}
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* SAVE CONFIRMATION MODAL */}
+          {saveNoticeOpen && (
+            <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className={`w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
+                darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-stone-100 border-stone-300 text-zinc-900'
+              }`}>
+                <div className="flex items-center justify-between border-b pb-3 border-stone-300/80 dark:border-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-emerald-500 text-zinc-950 p-1.5 rounded-lg font-bold">
+                      <Icons.Save className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-sm">index.html heruntergeladen!</h3>
+                  </div>
+                  <button 
+                    onClick={() => setSaveNoticeOpen(false)}
+                    className="touch-target p-1 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
+                  >
+                    <Icons.X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">
+                  <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    ✅ Alle deine aktuellen Änderungen (Aufstellungen, Spielstärken & Zahlungsstatus) wurden in die neue index.html-Datei übernommen.
+                  </p>
+                  <p>
+                    Lade diese heruntergeladene <strong>index.html</strong>-Datei einfach bei GitHub in deinem Repository hoch, um die Website online für alle zu aktualisieren.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setSaveNoticeOpen(false)}
+                  className="touch-target w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md"
+                >
+                  Verstanden 👍
+                </button>
               </div>
             </div>
           )}
