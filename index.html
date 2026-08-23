@@ -292,10 +292,12 @@
             const timer = setTimeout(() => {
               const el = document.getElementById(step.highlightId);
               if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
             }, 120);
             return () => clearTimeout(timer);
+          } else if (step && !step.highlightId) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }
       }, [tutorialStep]);
@@ -780,7 +782,7 @@
                 <button
                   id="tutorial-dark-toggle"
                   onClick={() => setDarkMode(!darkMode)}
-                  className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border text-xs sm:text-sm font-bold transition-all shadow-md active:scale-95 ${
+                  className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border text-xs sm:text-sm font-bold transition-all shadow-md active:scale-95 scroll-mt-16 sm:scroll-mt-20 ${
                     darkMode 
                       ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 hover:bg-amber-400/30' 
                       : 'bg-zinc-900/90 text-amber-300 border-zinc-700 hover:bg-zinc-800'
@@ -830,7 +832,7 @@
                 }`}>
                   <div 
                     id="tutorial-player-filter" 
-                    className={`relative flex-1 rounded-xl transition-all ${
+                    className={`relative flex-1 rounded-xl transition-all scroll-mt-16 sm:scroll-mt-20 ${
                       currentTutorialObj?.highlightId === 'tutorial-player-filter' ? 'tutorial-highlight ring-2 ring-amber-400' : ''
                     }`}
                   >
@@ -850,7 +852,7 @@
 
                   <div 
                     id="tutorial-past-toggle" 
-                    className={`touch-target flex items-center justify-between gap-3 px-3.5 py-2 border rounded-xl transition-all ${
+                    className={`touch-target flex items-center justify-between gap-3 px-3.5 py-2 border rounded-xl transition-all scroll-mt-16 sm:scroll-mt-20 ${
                       currentTutorialObj?.highlightId === 'tutorial-past-toggle' ? 'tutorial-highlight ring-2 ring-amber-400' : ''
                     } ${darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-stone-200/80 border-stone-300'}`}
                   >
@@ -1004,7 +1006,7 @@
                             <button
                               id="tutorial-whatsapp-btn"
                               onClick={() => openWhatsApp(item)}
-                              className={`touch-target p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition active:scale-95 ml-auto flex items-center justify-center ${
+                              className={`touch-target p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition active:scale-95 ml-auto flex items-center justify-center scroll-mt-20 sm:scroll-mt-24 ${
                                 currentTutorialObj?.highlightId === 'tutorial-whatsapp-btn' ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400 text-zinc-950 border-amber-400' : ''
                               }`}
                               title="Aufstellung direkt in WhatsApp öffnen & teilen"
@@ -1024,7 +1026,7 @@
 
             {}
             {activeTab === 'myDates' && (
-              <div id="tutorial-my-dates-sec" className={`space-y-4 rounded-2xl transition-all ${
+              <div id="tutorial-my-dates-sec" className={`space-y-4 rounded-2xl transition-all scroll-mt-16 sm:scroll-mt-20 ${
                 currentTutorialObj?.highlightId === 'tutorial-my-dates-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
               }`}>
                 <div className={`p-4 sm:p-5 rounded-2xl border shadow-sm space-y-3 ${
@@ -1273,6 +1275,7 @@
               </div>
             )}
 
+            {}
             {isAdminMode && activeTab === 'rules' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
@@ -1340,7 +1343,7 @@
 
           {}
           {tutorialStep !== null && currentTutorialObj && (
-            <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4 pointer-events-auto">
+            <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4 pointer-events-auto transition-all">
               <div className="w-full max-w-md bg-zinc-900 border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200 relative z-30">
                 <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                   <div className="flex items-center gap-2">
