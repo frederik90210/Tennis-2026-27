@@ -79,7 +79,7 @@
   <div id="root" class="w-full min-h-screen flex flex-col"></div>
 
   <script type="text/babel">
-    const { useState, useMemo } = React;
+    const { useState, useMemo, useEffect } = React;
 
     const TennisBallIcon = ({ className = "w-6 h-6" }) => (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -283,6 +283,22 @@
       const [tutorialStep, setTutorialStep] = useState(null);
       const [homeScreenPromptChoice, setHomeScreenPromptChoice] = useState(null);
       const [selectedBrowserInstructions, setSelectedBrowserInstructions] = useState(null);
+
+      /* Auto-scroll effect for tutorial highlights on mobile devices */
+      useEffect(() => {
+        if (tutorialStep !== null) {
+          const step = TUTORIAL_STEPS[tutorialStep];
+          if (step && step.highlightId && step.highlightId !== 'tutorial-costs-sec') {
+            const timer = setTimeout(() => {
+              const el = document.getElementById(step.highlightId);
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }, 120);
+            return () => clearTimeout(timer);
+          }
+        }
+      }, [tutorialStep]);
 
       const ABO_STUNDENSATZ = 590;
       const STUNDEN_PRO_SPIELTAG = 2;
@@ -821,13 +837,13 @@
                     <select
                       value={selectedPlayer}
                       onChange={(e) => setSelectedPlayer(e.target.value)}
-                      className={`touch-target w-full px-3 py-2.5 rounded-xl font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none ${
+                      className={`touch-target w-full px-3 py-2.5 rounded-xl font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-center ${
                         darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/80 border-stone-300 text-zinc-800'
                       }`}
                     >
-                      <option value="ALL">👥 Alle Spieler</option>
+                      <option value="ALL" className="text-center">👥 Alle Spieler</option>
                       {sortedPlayers.map(p => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
+                        <option key={p.id} value={p.id} className="text-center">{p.name}</option>
                       ))}
                     </select>
                   </div>
@@ -1025,13 +1041,13 @@
                     <select
                       value={myTerminePlayer}
                       onChange={(e) => setMyTerminePlayer(e.target.value)}
-                      className={`touch-target w-full px-3.5 py-2.5 rounded-xl text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                      className={`touch-target w-full px-3.5 py-2.5 rounded-xl text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center ${
                         darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/80 border-stone-300 text-zinc-800'
                       }`}
                     >
-                      <option value="">-- Bitte Namen auswählen --</option>
+                      <option value="" className="text-center">-- Bitte Namen auswählen --</option>
                       {sortedPlayers.map(p => (
-                        <option key={p.id} value={p.id}>
+                        <option key={p.id} value={p.id} className="text-center">
                           👤 {p.name}
                         </option>
                       ))}
@@ -1257,7 +1273,6 @@
               </div>
             )}
 
-            {}
             {isAdminMode && activeTab === 'rules' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
