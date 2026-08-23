@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Tennis Wintersaison 2026/2027</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React 18 & Babel CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Prevent unwanted mobile horizontal scrolling and touch delays */
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* Support iOS Safe Areas */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+    .pt-safe {
+      padding-top: env(safe-area-inset-top, 1rem);
+    }
+
+    /* Hide scrollbars for clean horizontal tab scrolling on mobile */
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Standard touch target minimum size for mobile screens */
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Prevent text auto-zooming on mobile form controls */
+    select, input, button {
+      font-size: 16px !important;
+    }
+    @media (min-width: 640px) {
+      select, input, button {
+        font-size: 14px !important;
+      }
+    }
+
+    /* Tutorial Pulsing Ring Effect */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.97); opacity: 0.85; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.97); opacity: 0.85; }
+    }
+    .tutorial-highlight {
+      animation: pulse-ring 1.8s infinite ease-in-out;
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.9), 0 0 20px rgba(251, 191, 36, 0.6);
+      position: relative;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body class="bg-stone-200/60 text-zinc-800 antialiased selection:bg-emerald-200 min-h-screen w-full overflow-x-hidden">
+  
+  <div id="root" class="w-full min-h-screen flex flex-col"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    const TennisBallIcon = ({ className = "w-6 h-6" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" fill="#ccff00" fillOpacity="0.25" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M4.5 9.5C7.5 11.5 10 15 10 19.5" stroke="#a3e635" strokeWidth="1.5" />
+        <path d="M19.5 14.5C16.5 12.5 14 9 14 4.5" stroke="#a3e635" strokeWidth="1.5" />
+      </svg>
+    );
+
+    const Icon = ({ path, className = "w-5 h-5", viewBox = "0 0 24 24" }) => (
+      <svg className={className} viewBox={viewBox} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {path}
+      </svg>
+    );
+
+    const Icons = {
+      Calendar: (p) => <Icon {...p} path={<><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>} />,
+      CalendarDays: (p) => <Icon {...p} path={<><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></>} />,
+      Users: (p) => <Icon {...p} path={<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>} />,
+      ShieldCheck: (p) => <Icon {...p} path={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 12 14 22 4"/></>} />,
+      Wallet: (p) => <Icon {...p} path={<><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><circle cx="16" cy="14" r="1"/></>} />,
+      Sun: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>} />,
+      Moon: (p) => <Icon {...p} path={<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>} />,
+      Lock: (p) => <Icon {...p} path={<><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>} />,
+      Unlock: (p) => <Icon {...p} path={<><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></>} />,
+      Eye: (p) => <Icon {...p} path={<><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>} />,
+      EyeOff: (p) => <Icon {...p} path={<><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></>} />,
+      Share2: (p) => <Icon {...p} path={<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></>} />,
+      Check: (p) => <Icon {...p} path={<polyline points="20 6 9 17 4 12"/>} />,
+      Edit3: (p) => <Icon {...p} path={<><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></>} />,
+      CalendarPlus: (p) => <Icon {...p} path={<><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></>} />,
+      CreditCard: (p) => <Icon {...p} path={<><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></>} />,
+      Clock: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>} />,
+      CheckCircle: (p) => <Icon {...p} path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />,
+      CheckCircle2: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></>} />,
+      AlertCircle: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>} />,
+      KeyRound: (p) => <Icon {...p} path={<><path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"/><circle cx="16.5" cy="7.5" r=".5"/></>} />,
+      X: (p) => <Icon {...p} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />,
+      Zap: (p) => <Icon {...p} path={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>} />,
+      Copy: (p) => <Icon {...p} path={<><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></>} />,
+      ExternalLink: (p) => <Icon {...p} path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />,
+      Star: (p) => <Icon {...p} path={<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>} />,
+      HelpCircle: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />,
+      ChevronLeft: (p) => <Icon {...p} path={<polyline points="15 18 9 12 15 6"/>} />,
+      ChevronRight: (p) => <Icon {...p} path={<polyline points="9 18 15 12 9 6"/>} />
+    };
+
+    /* Player Initial Dataset */
+    const INITIAL_PLAYERS = [
+      { id: 'FB', name: 'Frank B.', role: '1x / Monat', note: 'Max. 1x pro Monat & gemeinsam mit Philipp U.', rating: 5 },
+      { id: 'PU', name: 'Philipp U.', role: '5x / Saison', note: 'Max. 5x pro Saison, nur mit Top-Spielern & gemeinsam mit Frank B.', rating: 5 },
+      { id: 'VK', name: 'Vanessa K.', role: 'Stammspielerin', note: 'Gesperrt: 21.09., 12.10., 19.10., 04.01.', rating: 4 },
+      { id: 'JW', name: 'Joanna W.', role: 'Stammspielerin', note: 'Einteilung mit starkem Niveau', rating: 4 },
+      { id: 'ED', name: 'Erwin D.', role: 'Stammspieler', rating: 3 },
+      { id: 'JK', name: 'Julia K.', role: 'Stammspielerin', rating: 3 },
+      { id: 'MC', name: 'Marc C.', role: 'Stammspieler', note: 'Gesperrt: 12.10., 30.10. & den gesamten Dezember', rating: 2 },
+      { id: 'FD', name: 'Frederik D.', role: 'Stammspieler', rating: 2 },
+      { id: 'FR', name: 'Fredi R.', role: 'Stammspieler', note: 'Gesperrt: 21.09., 05.10., 12.10., 19.10., 21.12., 28.12., 04.01., 18.01., 08.02., 29.03.', rating: 2 },
+      { id: 'HR', name: 'Heinz R.', role: '1x / Monat', note: 'Maximal 1x pro Monat', rating: 2 },
+      { id: 'LS', name: 'Lutz S.', role: 'Stammspieler', note: 'Erst ab 27.09.2026 verplanen', rating: 1 },
+      { id: 'MZ', name: 'Martin Z.', role: '1x / Monat', note: 'Maximal 1x pro Monat', rating: 1 },
+    ];
+
+    /* Player Constraints Rules */
+    const PLAYER_RESTRICTIONS = {
+      PU: { maxSeason: 5, label: 'Max. 5 Spiele/Saison, nur mit Top-Spielern & immer gemeinsam mit Frank B.' },
+      MC: { dates: ['2026-10-12', '2026-10-30'], months: [12], label: 'Gesperrt: 12.10., 30.10. & den gesamten Dezember' },
+      FR: { dates: ['2026-09-21', '2026-10-05', '2026-10-12', '2026-10-19', '2026-12-21', '2026-12-28', '2027-01-04', '2027-01-18', '2027-02-08', '2027-03-29'], months: [], label: 'Gesperrt: 21.09., 05.10., 12.10., 19.10., 21.12., 28.12., 04.01., 18.01., 08.02., 29.03.' },
+      VK: { dates: ['2026-09-21', '2026-10-12', '2026-10-19', '2027-01-04'], months: [], label: 'Gesperrt: 21.09., 12.10., 19.10., 04.01.' },
+      LS: { beforeDate: '2026-09-27', label: 'Erst ab 27.09.2026 verplanen' },
+      FB: { maxPerMonth: 1, label: 'Max. 1x pro Monat' },
+      HR: { maxPerMonth: 1, label: 'Max. 1x pro Monat' },
+      MZ: { maxPerMonth: 1, label: 'Max. 1x pro Monat' }
+    };
+
+    /* Schedule Initial Data */
+    const INITIAL_SCHEDULE = [
+      { week: 1, date: '2026-09-21', players: ['ED', 'FD', 'HR', 'MZ'] },
+      { week: 2, date: '2026-09-28', players: ['PU', 'FB', 'VK', 'JW'] },
+      { week: 3, date: '2026-10-05', players: ['LS', 'MZ', 'MC', 'ED'] },
+      { week: 4, date: '2026-10-12', players: ['FB', 'JW', 'ED', 'FD'] },
+      { week: 5, date: '2026-10-19', players: ['LS', 'HR', 'JK', 'MC'] },
+      { week: 6, date: '2026-10-26', players: ['VK', 'JW', 'MC', 'FR'] },
+      { week: 7, date: '2026-11-02', players: ['JK', 'MZ', 'FD', 'ED'] },
+      { week: 8, date: '2026-11-09', players: ['VK', 'FD', 'JK', 'MC'] },
+      { week: 9, date: '2026-11-16', players: ['PU', 'FB', 'VK', 'JW'] },
+      { week: 10, date: '2026-11-23', players: ['FR', 'HR', 'ED', 'LS'] },
+      { week: 11, date: '2026-11-30', players: ['VK', 'JW', 'JK', 'MC'] },
+      { week: 12, date: '2026-12-07', players: ['FB', 'LS', 'FD', 'ED'] },
+      { week: 13, date: '2026-12-14', players: ['VK', 'JW', 'JK', 'HR'] },
+      { week: 14, date: '2026-12-21', players: ['LS', 'MZ', 'ED', 'FD'] },
+      { week: 15, date: '2026-12-28', players: ['VK', 'JW', 'JK', 'ED'] },
+      { week: 16, date: '2027-01-04', players: ['PU', 'FB', 'JW', 'ED'] },
+      { week: 17, date: '2027-01-11', players: ['JK', 'MZ', 'MC', 'FD'] },
+      { week: 18, date: '2027-01-18', players: ['VK', 'FD', 'JK', 'HR'] },
+      { week: 19, date: '2027-01-25', players: ['MC', 'FR', 'ED', 'LS'] },
+      { week: 20, date: '2027-02-01', players: ['LS', 'MZ', 'FD', 'MC'] },
+      { week: 21, date: '2027-02-08', players: ['VK', 'JW', 'JK', 'ED'] },
+      { week: 22, date: '2027-02-15', players: ['PU', 'FB', 'VK', 'JW'] },
+      { week: 23, date: '2027-02-22', players: ['FR', 'HR', 'LS', 'MC'] },
+      { week: 24, date: '2027-03-01', players: ['JK', 'MZ', 'FD', 'ED'] },
+      { week: 25, date: '2027-03-08', players: ['VK', 'JW', 'JK', 'MC'] },
+      { week: 26, date: '2027-03-15', players: ['FR', 'HR', 'LS', 'ED'] },
+      { week: 27, date: '2027-03-22', players: ['VK', 'FD', 'JK', 'MC'] },
+      { week: 28, date: '2027-03-29', players: ['PU', 'FB', 'VK', 'JW'] },
+      { week: 29, date: '2027-04-05', players: ['FB', 'LS', 'FD', 'MC'] },
+      { week: 30, date: '2027-04-12', players: ['VK', 'JW', 'JK', 'HR'] },
+      { week: 31, date: '2027-04-19', players: ['FR', 'MZ', 'ED', 'FD'] },
+    ];
+
+    /* Guided Tutorial Steps Definition */
+    const TUTORIAL_STEPS = [
+      {
+        title: "Willkommen zum Tennis Spielplan! 🎾",
+        text: "Mit dieser App behältst du immer den perfekten Überblick über alle Spieltage, Termine und Aufstellungen der Wintersaison 2026/2027.",
+        targetTab: 'plan',
+        highlightId: null
+      },
+      {
+        title: "Spieler-Filter 👥",
+        text: "Klicke im Spielplan auf '👥 Alle Spieler', um gezielt nur deine eigenen Spieltage anzuzeigen oder zu prüfen, wann deine Mitspieler eingeteilt sind.",
+        targetTab: 'plan',
+        highlightId: 'tutorial-player-filter'
+      },
+      {
+        title: "Vergangene Spiele ausblenden 👁️",
+        text: "Nutze diesen Schalter, um bereits vergangene Spieltage automatisch auszublenden. So siehst du immer sofort die nächsten bevorstehenden Matches.",
+        targetTab: 'plan',
+        highlightId: 'tutorial-past-toggle'
+      },
+      {
+        title: "WhatsApp Aufstellung teilen 💬",
+        text: "Mit dem 'WhatsApp'-Button bei jedem Spieltag kopierst du die gewählte Doppel-Aufstellung direkt in deine Zwischenablage zum Teilen in eure Gruppe!",
+        targetTab: 'plan',
+        highlightId: 'tutorial-whatsapp-btn'
+      },
+      {
+        title: "Meine Termine & Kalender-Export 📅",
+        text: "Im Reiter 'Meine Termine' wählst du deinen Namen aus und kannst alle deine Spieltage mit nur einem Klick direkt in deinen iPhone- oder Android-Kalender (.ics) speichern!",
+        targetTab: 'myDates',
+        highlightId: 'tutorial-my-dates-sec'
+      },
+      {
+        title: "Kosten & Bezahlung 💳",
+        text: "Hier siehst du die faire Kostenberechnung der Abogebühr. Die Kosten werden anteilig nach deinen tatsächlichen Einsätzen berechnet. Per Klick kannst du deinen Beitrag direkt per PayPal an Erwin D. überweisen.",
+        targetTab: 'costs',
+        highlightId: 'tutorial-costs-sec'
+      },
+      {
+        title: "Dunkelmodus 🌙",
+        text: "Mit diesem Button wechselst du jederzeit bequem zwischen dem hellen und dem augenschonenden dunklen Design – ideal für die Nutzung am Abend oder bei hellem Sonnenlicht.",
+        targetTab: 'plan',
+        highlightId: 'tutorial-dark-toggle'
+      },
+      {
+        title: "Alles startklar! 🏆",
+        text: "Das war's schon! Über das Fragezeichen-Symbol 'Hilfe' kannst du dieses Tutorial jederzeit wieder starten.\n\nLiebe Grüße Frederik :)",
+        targetTab: 'plan',
+        highlightId: null
+      }
+    ];
+
+    function App() {
+      const [players, setPlayers] = useState(INITIAL_PLAYERS);
+      const [schedule, setSchedule] = useState(INITIAL_SCHEDULE);
+      const [selectedPlayer, setSelectedPlayer] = useState('ALL');
+      const [activeTab, setActiveTab] = useState('plan');
+      const [editingWeek, setEditingWeek] = useState(null);
+      const [copiedIndex, setCopiedIndex] = useState(null);
+      const [isAdminMode, setIsAdminMode] = useState(false);
+      const [pinModalOpen, setPinModalOpen] = useState(false);
+      const [pinInput, setPinInput] = useState('');
+      const [pinError, setPinError] = useState(false);
+      const [hidePastGames, setHidePastGames] = useState(true);
+      const [darkMode, setDarkMode] = useState(false);
+      const [paidStatus, setPaidStatus] = useState({});
+      const [paypalModalOpen, setPaypalModalOpen] = useState(false);
+      const [selectedPaypalPlayer, setSelectedPaypalPlayer] = useState(null);
+      const [copiedPaypalLink, setCopiedPaypalLink] = useState(false);
+      const [myTerminePlayer, setMyTerminePlayer] = useState('FB');
+      const [copiedPersonalTermine, setCopiedPersonalTermine] = useState(false);
+
+      const [tutorialStep, setTutorialStep] = useState(null);
+
+      const ABO_STUNDENSATZ = 590;
+      const STUNDEN_PRO_SPIELTAG = 2;
+      const GESAMT_ABO_KOSTEN = ABO_STUNDENSATZ * STUNDEN_PRO_SPIELTAG;
+
+      const sortedPlayers = useMemo(() => {
+        return [...players].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+      }, [players]);
+
+      const formatDate = (dateStr) => {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      };
+
+      const getMonthKey = (dateStr) => dateStr.substring(0, 7);
+
+      const isPastDate = (dateStr) => {
+        const matchDate = new Date(dateStr + 'T23:59:59');
+        const today = new Date();
+        return matchDate < today;
+      };
+
+      const handleUpdateRating = (playerId, newRating) => {
+        setPlayers(prev => prev.map(p => p.id === playerId ? { ...p, rating: newRating } : p));
+      };
+
+      const togglePaymentStatus = (playerId) => {
+        setPaidStatus(prev => ({ ...prev, [playerId]: !prev[playerId] }));
+      };
+
+      const handleAdminToggle = () => {
+        if (isAdminMode) {
+          setIsAdminMode(false);
+          if (activeTab === 'players' || activeTab === 'rules') {
+            setActiveTab('plan');
+          }
+        } else {
+          setPinInput('');
+          setPinError(false);
+          setPinModalOpen(true);
+        }
+      };
+
+      const handlePinSubmit = (e) => {
+        e.preventDefault();
+        if (pinInput === '3100') {
+          setIsAdminMode(true);
+          setPinModalOpen(false);
+          setPinError(false);
+        } else {
+          setPinError(true);
+        }
+      };
+
+      const startTutorial = () => {
+        setTutorialStep(0);
+        setActiveTab(TUTORIAL_STEPS[0].targetTab);
+      };
+
+      const nextTutorialStep = () => {
+        if (tutorialStep === null) return;
+        if (tutorialStep < TUTORIAL_STEPS.length - 1) {
+          const nextIndex = tutorialStep + 1;
+          setTutorialStep(nextIndex);
+          setActiveTab(TUTORIAL_STEPS[nextIndex].targetTab);
+        } else {
+          setTutorialStep(null);
+        }
+      };
+
+      const prevTutorialStep = () => {
+        if (tutorialStep === null || tutorialStep <= 0) return;
+        const prevIndex = tutorialStep - 1;
+        setTutorialStep(prevIndex);
+        setActiveTab(TUTORIAL_STEPS[prevIndex].targetTab);
+      };
+
+      const endTutorial = () => {
+        setTutorialStep(null);
+      };
+
+      /* Rule Validation Calculations */
+      const validationResults = useMemo(() => {
+        const issues = [];
+        const monthlyCounts = {};
+        let puSeasonCount = 0;
+
+        schedule.forEach(item => {
+          const date = item.date;
+          const month = new Date(date).getMonth() + 1;
+          const monthKey = getMonthKey(date);
+
+          item.players.forEach(pId => {
+            if (!monthlyCounts[pId]) monthlyCounts[pId] = {};
+            monthlyCounts[pId][monthKey] = (monthlyCounts[pId][monthKey] || 0) + 1;
+
+            if (pId === 'PU') {
+              puSeasonCount++;
+              if (!item.players.includes('FB')) {
+                issues.push({
+                  week: item.week,
+                  date,
+                  player: 'PU',
+                  rule: `Spieltag am ${formatDate(date)}: Philipp U. spielt, aber Frank B. ist nicht eingeteilt!`
+                });
+              }
+            }
+
+            if (pId === 'MC') {
+              if (PLAYER_RESTRICTIONS.MC.dates.includes(date) || month === 12) {
+                issues.push({ week: item.week, date, player: 'MC', rule: `Marc C. ist am ${formatDate(date)} gesperrt!` });
+              }
+            }
+            if (pId === 'FR') {
+              if (PLAYER_RESTRICTIONS.FR.dates.includes(date)) {
+                issues.push({ week: item.week, date, player: 'FR', rule: `Fredi R. ist am ${formatDate(date)} gesperrt!` });
+              }
+            }
+            if (pId === 'VK') {
+              if (PLAYER_RESTRICTIONS.VK.dates.includes(date)) {
+                issues.push({ week: item.week, date, player: 'VK', rule: `Vanessa K. ist am ${formatDate(date)} gesperrt!` });
+              }
+            }
+            if (pId === 'LS') {
+              if (new Date(date) < new Date('2026-09-27')) {
+                issues.push({ week: item.week, date, player: 'LS', rule: `Lutz S. steht erst ab 27.09.2026 zur Verfügung!` });
+              }
+            }
+          });
+        });
+
+        if (puSeasonCount > 5) {
+          issues.push({
+            week: 'Saison',
+            date: '2026-2027',
+            player: 'PU',
+            rule: `Philipp U. ist ${puSeasonCount}x eingetragen (Erlaubt: max. 5x pro Saison)!`
+          });
+        }
+
+        ['FB', 'HR', 'MZ'].forEach(pId => {
+          if (monthlyCounts[pId]) {
+            Object.entries(monthlyCounts[pId]).forEach(([mKey, count]) => {
+              if (count > 1) {
+                const pName = players.find(p => p.id === pId)?.name;
+                issues.push({
+                  week: 'Monat',
+                  date: mKey,
+                  player: pId,
+                  rule: `${pName} ist im Monat ${mKey} ${count}x eingetragen (Erlaubt: max. 1x pro Monat)!`
+                });
+              }
+            });
+          }
+        });
+
+        return issues;
+      }, [schedule, players]);
+
+      const playerStats = useMemo(() => {
+        const counts = {};
+        const playedDates = {};
+        players.forEach(p => {
+          counts[p.id] = 0;
+          playedDates[p.id] = [];
+        });
+        
+        let totalAssignedSlots = 0;
+        schedule.forEach(item => {
+          item.players.forEach(pId => {
+            if (counts[pId] !== undefined) {
+              counts[pId]++;
+              playedDates[pId].push({ week: item.week, date: item.date });
+              totalAssignedSlots++;
+            }
+          });
+        });
+
+        const costPerSlot = totalAssignedSlots > 0 ? (GESAMT_ABO_KOSTEN / totalAssignedSlots) : 0;
+
+        return players.map(p => {
+          const matchCount = counts[p.id] || 0;
+          const totalCost = matchCount * costPerSlot;
+          return {
+            ...p,
+            count: matchCount,
+            cost: totalCost,
+            costPerSlot,
+            dates: playedDates[p.id] || []
+          };
+        });
+      }, [schedule, players, GESAMT_ABO_KOSTEN]);
+
+      /* Match Balance Algorithm */
+      const getMatchBalance = (assignedPlayerIds) => {
+        if (!assignedPlayerIds || assignedPlayerIds.length === 0) {
+          return { avg: 0, label: 'K.A.', teamA: [], teamB: [], scoreA: 0, scoreB: 0, color: 'bg-stone-200 text-stone-700 dark:bg-zinc-800 dark:text-zinc-300' };
+        }
+
+        const matchPlayers = assignedPlayerIds.map(id => {
+          const p = players.find(x => x.id === id);
+          return p ? p : { id, name: id, rating: 3 };
+        }).sort((a, b) => b.rating - a.rating);
+
+        const sum = matchPlayers.reduce((acc, p) => acc + p.rating, 0);
+        const avg = (sum / matchPlayers.length).toFixed(1);
+
+        let teamA = [];
+        let teamB = [];
+
+        if (matchPlayers.length === 4) {
+          teamA = [matchPlayers[0], matchPlayers[3]];
+          teamB = [matchPlayers[1], matchPlayers[2]];
+        } else {
+          teamA = matchPlayers.slice(0, Math.ceil(matchPlayers.length / 2));
+          teamB = matchPlayers.slice(Math.ceil(matchPlayers.length / 2));
+        }
+
+        const scoreA = teamA.reduce((acc, p) => acc + p.rating, 0);
+        const scoreB = teamB.reduce((acc, p) => acc + p.rating, 0);
+
+        let label = 'Ausgeglichen ⚖️';
+        let color = 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300';
+
+        if (Math.abs(scoreA - scoreB) > 2) {
+          label = 'Dominanz-Gefahr ⚠️';
+          color = 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300';
+        } else if (avg >= 3.8) {
+          label = 'Top-Duell 🔥';
+          color = 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-950/60 dark:text-indigo-300';
+        }
+
+        return { avg, label, teamA, teamB, scoreA, scoreB, color };
+      };
+
+      const filteredSchedule = useMemo(() => {
+        return schedule.filter(item => {
+          if (hidePastGames && isPastDate(item.date)) {
+            return false;
+          }
+          return selectedPlayer === 'ALL' || item.players.includes(selectedPlayer);
+        });
+      }, [schedule, selectedPlayer, hidePastGames]);
+
+      const exportICS = (specificPlayerId = null) => {
+        let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Spaden Tennis Manager//DE\nCALSCALE:GREGORIAN\n";
+        
+        const itemsToExport = specificPlayerId 
+          ? schedule.filter(s => s.players.includes(specificPlayerId))
+          : schedule;
+
+        itemsToExport.forEach(item => {
+          const dateParts = item.date.split('-');
+          const year = dateParts[0];
+          const month = dateParts[1];
+          const day = dateParts[2];
+
+          const balance = getMatchBalance(item.players);
+          const teamANames = balance.teamA.map(p => p.name).join(' - ');
+          const teamBNames = balance.teamB.map(p => p.name).join(' - ');
+
+          icsContent += "BEGIN:VEVENT\n";
+          icsContent += `SUMMARY:Tennis Doppel (${formatDate(item.date)})\n`;
+          icsContent += `DESCRIPTION:Tennis Hallen-Match (17:30 - 19:30 Uhr)\\nDoppel: ${teamANames} vs ${teamBNames}\n`;
+          icsContent += `DTSTART:${year}${month}${day}T173000\n`;
+          icsContent += `DTEND:${year}${month}${day}T193000\n`;
+          icsContent += `LOCATION:Tennishalle Spaden\n`;
+          icsContent += "END:VEVENT\n";
+        });
+
+        icsContent += "END:VCALENDAR";
+
+        const pObj = specificPlayerId ? players.find(p => p.id === specificPlayerId) : null;
+        const fileName = pObj ? `Tennis_Termine_${pObj.name.replace(/\s+/g, '_')}.ics` : "Tennis_Spielplan_2026_2027.ics";
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      const handleTogglePlayerInWeek = (weekNum, pId) => {
+        setSchedule(prev => prev.map(item => {
+          if (item.week !== weekNum) return item;
+
+          const exists = item.players.includes(pId);
+          if (exists) {
+            if (item.players.length <= 1) return item;
+            return { ...item, players: item.players.filter(x => x !== pId) };
+          } else {
+            if (item.players.length >= 4) {
+              return { ...item, players: [...item.players.slice(0, 3), pId] };
+            }
+            return { ...item, players: [...item.players, pId] };
+          }
+        }));
+      };
+
+      const copyWhatsAppText = (item, index) => {
+        const balance = getMatchBalance(item.players);
+        const teamAText = balance.teamA.map(p => (isAdminMode ? `${p.name} (⭐${p.rating})` : p.name)).join(' + ');
+        const teamBText = balance.teamB.map(p => (isAdminMode ? `${p.name} (⭐${p.rating})` : p.name)).join(' + ');
+
+        let text = `🎾 *Tennis Spieltag ${formatDate(item.date)}* (17:30 - 19:30 Uhr)\n\n*Empfohlenes Doppel:*\nTeam A: ${teamAText}\nTeam B: ${teamBText}\n`;
+        if (isAdminMode) {
+          text += `\nNiveau: ${balance.label} (Ø ${balance.avg} ⭐)\n`;
+        }
+        text += `\nViel Spaß auf dem Platz! 🏆`;
+
+        navigator.clipboard.writeText(text);
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 2500);
+      };
+
+      const openPaypalModalForPlayer = (player) => {
+        setSelectedPaypalPlayer(player);
+        setPaypalModalOpen(true);
+        setCopiedPaypalLink(false);
+      };
+
+      const handleCopyPaypalLink = (link) => {
+        navigator.clipboard.writeText(link);
+        setCopiedPaypalLink(true);
+        setTimeout(() => setCopiedPaypalLink(false), 2000);
+      };
+
+      const myPlayerObj = useMemo(() => {
+        return playerStats.find(p => p.id === myTerminePlayer) || playerStats[0];
+      }, [playerStats, myTerminePlayer]);
+
+      const copyPersonalTermineWhatsApp = () => {
+        if (!myPlayerObj) return;
+        let text = `🎾 *Tennis Termine 2026/2027 für ${myPlayerObj.name}* (${myPlayerObj.count} Spiele)\n\n`;
+        myPlayerObj.dates.forEach(d => {
+          text += `• ${formatDate(d.date)} (17:30 - 19:30 Uhr)\n`;
+        });
+        text += `\nGesamtbeitrag: ${myPlayerObj.cost.toFixed(2)} €`;
+
+        navigator.clipboard.writeText(text);
+        setCopiedPersonalTermine(true);
+        setTimeout(() => setCopiedPersonalTermine(false), 2500);
+      };
+
+      const currentTutorialObj = tutorialStep !== null ? TUTORIAL_STEPS[tutorialStep] : null;
+
+      return (
+        <div className={`min-h-screen w-full transition-colors duration-200 p-2 sm:p-4 md:p-6 font-sans pb-safe ${
+          darkMode ? 'bg-zinc-950 text-zinc-100' : 'bg-stone-200/60 text-zinc-800'
+        }`}>
+          <div className="max-w-6xl mx-auto space-y-3 sm:space-y-6 w-full">
+            
+            {/* Header Banner - Clean Horizontal Layout on Mobile */}
+            <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-white rounded-2xl p-3.5 sm:p-6 shadow-xl border border-emerald-800/40 relative overflow-hidden">
+              {/* Tennis Ball Background Symbol */}
+              <div className="absolute -right-6 -bottom-8 opacity-20 pointer-events-none text-emerald-300">
+                <TennisBallIcon className="w-44 h-44 sm:w-56 sm:h-56" />
+              </div>
+
+              {/* Admin Lock Toggle Button - Positioned in top-right corner when in Kosten & Bezahlung or when Admin Mode active */}
+              {(activeTab === 'costs' || isAdminMode) && (
+                <button 
+                  onClick={handleAdminToggle}
+                  className={`absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 touch-target p-2 sm:p-2.5 rounded-xl border transition-all shadow-md active:scale-95 flex items-center justify-center ${
+                    isAdminMode 
+                      ? 'bg-amber-400 text-zinc-950 border-amber-300 shadow-amber-400/20' 
+                      : 'bg-zinc-800/80 text-zinc-300 border-zinc-700/80 hover:bg-zinc-700'
+                  }`}
+                  title={isAdminMode ? "Admin-Modus beenden" : "Admin-Modus freischalten (PIN 3100)"}
+                >
+                  {isAdminMode ? <Icons.Unlock className="w-5 h-5 font-bold" /> : <Icons.Lock className="w-5 h-5" />}
+                </button>
+              )}
+              
+              <div className="relative z-10 pr-12 sm:pr-16 space-y-1">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span className="bg-zinc-800/80 text-emerald-200 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 rounded-full border border-emerald-600/40 backdrop-blur-sm">
+                    Montags 17:30 - 19:30 Uhr
+                  </span>
+                  <span className="bg-zinc-800/80 text-emerald-200 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 rounded-full border border-emerald-600/40 backdrop-blur-sm">
+                    2026 / 2027
+                  </span>
+                </div>
+                <h1 className="text-lg sm:text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-2 pt-0.5">
+                  🎾 Tennis Wintersaison
+                </h1>
+              </div>
+
+              {/* Navigation Tabs - Multi-line wrapping on mobile screens */}
+              <div className="mt-4 flex flex-wrap items-center gap-1.5 sm:gap-2 pt-3 border-t border-emerald-800/40">
+                <button
+                  onClick={() => setActiveTab('plan')}
+                  className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                    activeTab === 'plan'
+                      ? 'bg-stone-100 text-emerald-950 shadow-md scale-105'
+                      : 'bg-emerald-900/40 text-emerald-100 hover:bg-emerald-800/50 border border-emerald-700/30'
+                  }`}
+                >
+                  <Icons.Calendar className="w-4 h-4" /> Spielplan
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('myDates')}
+                  className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                    activeTab === 'myDates'
+                      ? 'bg-stone-100 text-emerald-950 shadow-md scale-105'
+                      : 'bg-emerald-900/40 text-emerald-100 hover:bg-emerald-800/50 border border-emerald-700/30'
+                  }`}
+                >
+                  <Icons.CalendarDays className="w-4 h-4" /> Meine Termine
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('costs')}
+                  className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                    activeTab === 'costs'
+                      ? 'bg-stone-100 text-emerald-950 shadow-md scale-105'
+                      : 'bg-emerald-900/40 text-emerald-100 hover:bg-emerald-800/50 border border-emerald-700/30'
+                  }`}
+                >
+                  <Icons.Wallet className="w-4 h-4" /> Kosten & Bezahlung
+                </button>
+
+                {/* Tutorial Question Mark Button */}
+                <button
+                  onClick={startTutorial}
+                  className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md active:scale-95 border ${
+                    tutorialStep !== null
+                      ? 'bg-amber-400 text-zinc-950 border-amber-300 ring-2 ring-amber-400'
+                      : 'bg-amber-400/90 text-zinc-950 border-amber-300 hover:bg-amber-300'
+                  }`}
+                  title="Anleitung / Tutorial starten"
+                >
+                  <Icons.HelpCircle className="w-4 h-4 stroke-[2.5]" />
+                  <span>Hilfe</span>
+                </button>
+
+                {/* Dark Mode Toggle Button */}
+                <button
+                  id="tutorial-dark-toggle"
+                  onClick={() => setDarkMode(!darkMode)}
+                  className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border text-xs sm:text-sm font-bold transition-all shadow-md active:scale-95 ${
+                    darkMode 
+                      ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 hover:bg-amber-400/30' 
+                      : 'bg-zinc-900/90 text-amber-300 border-zinc-700 hover:bg-zinc-800'
+                  } ${
+                    currentTutorialObj?.highlightId === 'tutorial-dark-toggle' ? 'tutorial-highlight ring-4 ring-amber-400 scale-110 shadow-xl shadow-amber-400/60 bg-amber-400 text-zinc-950 border-amber-300 font-extrabold' : ''
+                  }`}
+                  title={darkMode ? "Heller Modus" : "Dunkler Modus"}
+                >
+                  {darkMode ? <Icons.Sun className="w-4 h-4 text-amber-300 animate-pulse" /> : <Icons.Moon className="w-4 h-4 text-amber-300" />}
+                  <span className="hidden xs:inline">{darkMode ? "Heller Modus" : "Dunkler Modus"}</span>
+                </button>
+
+                {isAdminMode && (
+                  <>
+                    <button
+                      onClick={() => setActiveTab('players')}
+                      className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                        activeTab === 'players'
+                          ? 'bg-amber-400 text-zinc-950 shadow-md scale-105'
+                          : 'bg-amber-900/40 text-amber-200 hover:bg-amber-800/50 border border-amber-700/30'
+                      }`}
+                    >
+                      <Icons.Users className="w-4 h-4" /> Karteikarten ({players.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('rules')}
+                      className={`touch-target flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                        activeTab === 'rules'
+                          ? 'bg-amber-400 text-zinc-950 shadow-md scale-105'
+                          : 'bg-amber-900/40 text-amber-200 hover:bg-amber-800/50 border border-amber-700/30'
+                      }`}
+                    >
+                      <Icons.ShieldCheck className="w-4 h-4" /> Sperren ({validationResults.length})
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* TAB 1: SPIELPLAN */}
+            {activeTab === 'plan' && (
+              <div className="space-y-3 sm:space-y-4">
+                
+                {/* Filter Toolbar */}
+                <div className={`p-2.5 sm:p-3 rounded-xl border shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 ${
+                  darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-100/90 border-stone-300/80'
+                }`}>
+                  <div 
+                    id="tutorial-player-filter" 
+                    className={`relative flex-1 rounded-xl transition-all ${
+                      currentTutorialObj?.highlightId === 'tutorial-player-filter' ? 'tutorial-highlight ring-2 ring-amber-400' : ''
+                    }`}
+                  >
+                    <select
+                      value={selectedPlayer}
+                      onChange={(e) => setSelectedPlayer(e.target.value)}
+                      className={`touch-target w-full px-3 py-2.5 rounded-xl font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none ${
+                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/70 border-stone-300 text-zinc-800'
+                      }`}
+                    >
+                      <option value="ALL">👥 Alle Spieler</option>
+                      {sortedPlayers.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div 
+                    id="tutorial-past-toggle" 
+                    className={`touch-target flex items-center justify-between gap-3 px-3.5 py-2 border rounded-xl transition-all ${
+                      currentTutorialObj?.highlightId === 'tutorial-past-toggle' ? 'tutorial-highlight ring-2 ring-amber-400' : ''
+                    } ${darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-stone-200/70 border-stone-300'}`}
+                  >
+                    <span className="text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap">
+                      {hidePastGames ? <Icons.EyeOff className="w-4 h-4 text-zinc-400" /> : <Icons.Eye className="w-4 h-4 text-emerald-600" />}
+                      Vergangene ausblenden
+                    </span>
+                    <button
+                      onClick={() => setHidePastGames(!hidePastGames)}
+                      className={`w-9 h-5 rounded-full p-0.5 transition-colors ${hidePastGames ? 'bg-emerald-600' : 'bg-zinc-400'}`}
+                    >
+                      <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${hidePastGames ? 'translate-x-4' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {filteredSchedule.length === 0 ? (
+                  <div className={`p-6 sm:p-8 rounded-2xl text-center border space-y-2 ${
+                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                  }`}>
+                    <p className="text-zinc-500 dark:text-zinc-400 font-semibold text-sm">Keine passenden Spieltage gefunden.</p>
+                    {hidePastGames && (
+                      <button 
+                        onClick={() => setHidePastGames(false)}
+                        className="text-xs font-bold text-emerald-600 dark:text-emerald-400 underline pt-1"
+                      >
+                        Vergangene Spiele einblenden
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
+                    {filteredSchedule.map((item, idx) => {
+                      const balance = getMatchBalance(item.players);
+                      const isEditingThisWeek = editingWeek === item.week;
+                      const isPast = isPastDate(item.date);
+
+                      return (
+                        <div 
+                          key={item.week}
+                          className={`rounded-2xl border shadow-sm transition-all overflow-hidden flex flex-col justify-between ${
+                            darkMode ? 'bg-zinc-900 border-zinc-800/80' : 'bg-stone-100/90 border-stone-300/80'
+                          } ${isPast ? 'opacity-50' : ''}`}
+                        >
+                          <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-emerald-50 p-3 sm:p-3.5 flex items-center justify-between border-b border-emerald-800/50">
+                            <span className="font-bold text-sm sm:text-base text-emerald-100 flex items-center gap-1.5">
+                              📅 {formatDate(item.date)}
+                            </span>
+                            <span className="text-xs text-emerald-200/80 font-medium">17:30 - 19:30 Uhr</span>
+                          </div>
+
+                          <div className="p-3 sm:p-3.5 space-y-3">
+                            <div>
+                              <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
+                                Eingeteilte Aufstellung
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {item.players.map(pId => {
+                                  const p = players.find(x => x.id === pId);
+                                  const isTeamA = balance.teamA.some(tp => tp.id === pId);
+
+                                  return (
+                                    <span 
+                                      key={pId}
+                                      className={`text-xs font-semibold px-2.5 py-1 rounded-lg border flex items-center gap-1 ${
+                                        isTeamA
+                                          ? darkMode ? 'bg-rose-950/60 text-rose-300 border-rose-800/80' : 'bg-rose-200/80 text-rose-900 border-rose-300'
+                                          : darkMode ? 'bg-blue-950/60 text-blue-300 border-blue-800/80' : 'bg-blue-200/80 text-blue-900 border-blue-300'
+                                      }`}
+                                    >
+                                      {p ? p.name : pId}
+                                      {isAdminMode && p && (
+                                        <span className="text-[10px] text-amber-500 font-black ml-0.5">⭐{p.rating}</span>
+                                      )}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Matchup Teams */}
+                            <div className={`p-2.5 rounded-xl border text-xs space-y-1 ${
+                              darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/50 border-stone-300/60'
+                            }`}>
+                              <div className="flex items-center justify-between text-zinc-500 dark:text-zinc-400 font-semibold text-[11px] mb-1">
+                                <span>Empfohlenes Doppel</span>
+                                {isAdminMode && (
+                                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${balance.color}`}>
+                                    {balance.label} (Ø {balance.avg} ⭐)
+                                  </span>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-1 gap-1">
+                                <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border font-medium ${
+                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-100 border-rose-200/80 text-zinc-800'
+                                }`}>
+                                  <span className="text-rose-600 font-bold flex-shrink-0">Team A:</span>
+                                  <span className="text-center flex-1 font-semibold">{balance.teamA.map(p => p.name).join(' - ')}</span>
+                                </div>
+                                <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border font-medium ${
+                                  darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-stone-100 border-blue-200/80 text-zinc-800'
+                                }`}>
+                                  <span className="text-blue-600 font-bold flex-shrink-0">Team B:</span>
+                                  <span className="text-center flex-1 font-semibold">{balance.teamB.map(p => p.name).join(' - ')}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {isAdminMode && isEditingThisWeek && (
+                              <div className="bg-amber-50 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200 dark:border-amber-800/80 text-xs space-y-2">
+                                <p className="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1">
+                                  <Icons.Edit3 className="w-3.5 h-3.5" /> Aufstellung anpassen:
+                                </p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                                  {players.map(p => {
+                                    const isSelected = item.players.includes(p.id);
+                                    return (
+                                      <button
+                                        key={p.id}
+                                        onClick={() => handleTogglePlayerInWeek(item.week, p.id)}
+                                        className={`touch-target px-2 py-1.5 rounded-lg text-left text-xs font-semibold flex items-center justify-between transition border ${
+                                          isSelected 
+                                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm' 
+                                            : 'bg-stone-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-stone-300 dark:border-zinc-700'
+                                        }`}
+                                      >
+                                        <span className="truncate">{p.name}</span>
+                                        {isSelected && <Icons.Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+
+                          </div>
+
+                          <div className={`px-3.5 py-2.5 border-t flex items-center justify-between gap-2 ${
+                            darkMode ? 'bg-zinc-950/40 border-zinc-800' : 'bg-stone-200/40 border-stone-300/50'
+                          }`}>
+                            {isAdminMode && (
+                              <button
+                                onClick={() => setEditingWeek(isEditingThisWeek ? null : item.week)}
+                                className="touch-target text-xs font-semibold text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition"
+                              >
+                                <Icons.Edit3 className="w-3.5 h-3.5" />
+                                {isEditingThisWeek ? 'Fertig' : 'Bearbeiten'}
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => copyWhatsAppText(item, idx)}
+                              className={`touch-target text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-600/30 px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95 ml-auto ${
+                                currentTutorialObj?.highlightId === 'tutorial-whatsapp-btn' ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400/30 text-amber-900 dark:text-amber-200 border-amber-400' : ''
+                              }`}
+                            >
+                              {copiedIndex === idx ? (
+                                <>
+                                  <Icons.Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Kopiert!
+                                </>
+                              ) : (
+                                <>
+                                  <Icons.Share2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> WhatsApp
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* TAB 2: MEINE TERMINE */}
+            {activeTab === 'myDates' && (
+              <div id="tutorial-my-dates-sec" className={`space-y-4 rounded-2xl transition-all ${
+                currentTutorialObj?.highlightId === 'tutorial-my-dates-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
+              }`}>
+                <div className={`p-4 sm:p-5 rounded-2xl border shadow-sm space-y-3 ${
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                }`}>
+                  <div className="space-y-1">
+                    <h2 className="text-base sm:text-lg font-bold">Wähle deinen Namen für deine Termine:</h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Wähle deinen Namen aus dem Dropdown-Menü, um alle deine Spieltage anzuzeigen und in deinen Kalender zu übertragen.
+                    </p>
+                  </div>
+
+                  <div className="max-w-md">
+                    <select
+                      value={myTerminePlayer}
+                      onChange={(e) => setMyTerminePlayer(e.target.value)}
+                      className={`touch-target w-full px-3.5 py-2.5 rounded-xl text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-100' : 'bg-stone-200/70 border-stone-300 text-zinc-800'
+                      }`}
+                    >
+                      {sortedPlayers.map(p => (
+                        <option key={p.id} value={p.id}>
+                          👤 {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {myPlayerObj && (
+                  <div className={`rounded-2xl border shadow-sm overflow-hidden p-4 sm:p-6 space-y-4 ${
+                    darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                  }`}>
+                    <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border ${
+                      darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/50 border-stone-300/60'
+                    }`}>
+                      <div>
+                        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Persönlicher Terminkalender</span>
+                        <h3 className="text-xl font-black">{myPlayerObj.name}</h3>
+                        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                          {myPlayerObj.count} Termine in der Saison • {myPlayerObj.cost.toFixed(2)} € Gesamtbeitrag
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <button
+                          onClick={() => exportICS(myPlayerObj.id)}
+                          className="touch-target bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-95 flex-1 sm:flex-none"
+                        >
+                          <Icons.CalendarPlus className="w-5 h-5" /> In Kalender speichern
+                        </button>
+                        <button
+                          onClick={copyPersonalTermineWhatsApp}
+                          className="touch-target bg-zinc-800 hover:bg-zinc-900 text-white font-bold px-5 py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-95 flex-1 sm:flex-none"
+                        >
+                          {copiedPersonalTermine ? <Icons.Check className="w-5 h-5 text-emerald-400" /> : <Icons.Share2 className="w-5 h-5" />}
+                          {copiedPersonalTermine ? 'Kopiert!' : 'Termine kopieren'}
+                        </button>
+                      </div>
+
+                      <h4 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider pt-2">Eingeteilte Spieltage (Montags 17:30 - 19:30 Uhr):</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                        {myPlayerObj.dates.map((d, i) => {
+                          const past = isPastDate(d.date);
+                          return (
+                            <div 
+                              key={i} 
+                              className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between ${
+                                past 
+                                  ? 'opacity-50 bg-zinc-800/40 text-zinc-500 border-zinc-700' 
+                                  : darkMode
+                                    ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800'
+                                    : 'bg-emerald-100/70 text-zinc-800 border-emerald-300'
+                              }`}
+                            >
+                              <span className="font-bold">📅 {formatDate(d.date)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 3: KOSTEN & BEZAHLUNG */}
+            {activeTab === 'costs' && (
+              <div id="tutorial-costs-sec" className={`space-y-4 rounded-2xl transition-all ${
+                currentTutorialObj?.highlightId === 'tutorial-costs-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
+              }`}>
+                <div className="bg-gradient-to-r from-zinc-900 via-indigo-950 to-zinc-900 text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3 border border-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-amber-400 text-zinc-900 text-xs font-black px-2 py-0.5 rounded uppercase">Information</span>
+                    <h3 className="font-bold text-base sm:text-lg">Kostenberechnung</h3>
+                  </div>
+                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                    Das Hallen-Abo beträgt <strong>590 € pro Stunde</strong> für die gesamte Saison. Gespielt werden jeweils <strong>2 Stunden</strong> (Gesamtkosten 1.180 €). Die Kosten werden fair anteilig anhand der tatsächlich absolvierten Einsätze auf die Spieler aufgeteilt.<br />
+                  </p>
+                  <p className="text-xs sm:text-sm text-blue-300 font-medium">
+                    💳 <strong>Bezahlung:</strong> Die Abrechnung der Abogebühr erfolgt gesammelt per PayPal an <strong>Erwin D.</strong>
+                  </p>
+                  <div className="bg-amber-500/20 border border-amber-400/40 p-2.5 rounded-xl flex items-center gap-2 text-amber-200 text-xs font-semibold">
+                    <Icons.Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <span><strong>Lichtgeld:</strong> Das Lichtgeld beträgt zusätzlich <strong>2 € pro Stunde</strong>.</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between px-1">
+                    <div>
+                      <h3 className="font-bold text-base sm:text-lg">Übersicht pro Spieler</h3>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Exakte Bezahlungskarte pro Spieler</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                    {playerStats.map(p => {
+                      const isPaid = !!paidStatus[p.id];
+
+                      return (
+                        <div 
+                          key={p.id}
+                          className={`rounded-2xl border shadow-sm p-4 flex flex-col justify-between space-y-4 relative overflow-hidden transition ${
+                            darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h4 className="font-bold text-sm sm:text-base">{p.name}</h4>
+                              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{p.role}</p>
+                            </div>
+
+                            {isPaid && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                                Bezahlt
+                              </span>
+                            )}
+                          </div>
+
+                          <div className={`p-3 rounded-xl border flex items-center justify-between ${
+                            darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/50 border-stone-300/60'
+                          }`}>
+                            <div>
+                              <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Einsätze</p>
+                              <p className="text-sm font-black">{p.count} Spiele</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Betrag Saison</p>
+                              <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">{p.cost.toFixed(2)} €</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2 pt-1">
+                            <button
+                              onClick={() => openPaypalModalForPlayer(p)}
+                              className="touch-target w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95"
+                            >
+                              <Icons.CreditCard className="w-4 h-4" />
+                              <span>PayPal an Erwin D.</span>
+                            </button>
+
+                            {isAdminMode && (
+                              <button
+                                onClick={() => togglePaymentStatus(p.id)}
+                                className={`touch-target w-full py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 border ${
+                                  isPaid 
+                                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20' 
+                                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
+                                }`}
+                              >
+                                {isPaid ? <Icons.CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Icons.Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />}
+                                {isPaid ? 'Bezahlt' : 'Als bezahlt markieren'}
+                              </button>
+                            )}
+                          </div>
+
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* ADMIN TABS */}
+            {isAdminMode && activeTab === 'players' && (
+              <div className="space-y-4">
+                <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                }`}>
+                  <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
+                    <Icons.Users className="w-5 h-5 text-amber-500" /> Spieler-Karteikarten & Stärke-Ratings
+                  </h2>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Hier kannst du das Niveau (Rating 1 bis 5) der Spieler verwalten. Dieser Bereich ist im öffentlichen Modus verborgen.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                  {playerStats.map(p => (
+                    <div 
+                      key={p.id}
+                      className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
+                        darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-9 h-9 rounded-xl bg-zinc-800 text-zinc-200 flex items-center justify-center font-bold text-xs border border-zinc-700">
+                          {p.id}
+                        </span>
+                        <div>
+                          <h3 className="font-bold text-sm">{p.name}</h3>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">{p.role}</p>
+                        </div>
+                      </div>
+
+                      {p.note && (
+                        <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
+                          ℹ️ {p.note}
+                        </p>
+                      )}
+
+                      <div className="pt-2 border-t border-stone-300/80 dark:border-zinc-800 flex items-center justify-between">
+                        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">Spielstärke:</span>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <button
+                              key={star}
+                              onClick={() => handleUpdateRating(p.id, star)}
+                              className="touch-target p-1 hover:scale-125 transition"
+                              title={`Stufe ${star}`}
+                            >
+                              <Icons.Star className={`w-4 h-4 ${star <= p.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300 dark:text-zinc-700'}`} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {isAdminMode && activeTab === 'rules' && (
+              <div className="space-y-4">
+                <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                }`}>
+                  <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
+                    <Icons.ShieldCheck className="w-5 h-5 text-amber-500" /> Sperrzeiten & Regel-Validierung
+                  </h2>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Automatische Prüfung auf Konflikte mit hinterlegten Sperrdaten und Beschränkungen.
+                  </p>
+                </div>
+
+                <div className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                }`}>
+                  <h3 className="font-bold text-sm flex items-center gap-2">
+                    {validationResults.length > 0 ? (
+                      <>
+                        <Icons.AlertCircle className="w-4 h-4 text-rose-500" />
+                        <span>Konflikte im aktuellen Spielplan ({validationResults.length}):</span>
+                      </>
+                    ) : (
+                      <>
+                        <Icons.CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>Alle Regeln & Sperrzeiten werden optimal eingehalten!</span>
+                      </>
+                    )}
+                  </h3>
+
+                  {validationResults.length > 0 && (
+                    <div className="space-y-2">
+                      {validationResults.map((err, i) => (
+                        <div key={i} className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-2">
+                          <span>⚠️</span>
+                          <span>{err.rule}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className={`p-4 rounded-2xl border shadow-sm space-y-3 ${
+                  darkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-stone-100/90 border-stone-300/80'
+                }`}>
+                  <h3 className="font-bold text-sm">Hinterlegte Sperrdaten der Spieler:</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    {Object.entries(PLAYER_RESTRICTIONS).map(([pId, res]) => {
+                      const player = players.find(p => p.id === pId);
+                      return (
+                        <div key={pId} className={`p-3 rounded-xl border space-y-1 ${
+                          darkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-stone-200/50 border-stone-300/60'
+                        }`}>
+                          <span className="font-bold text-emerald-700 dark:text-emerald-400">{player?.name || pId}</span>
+                          <p className="text-zinc-500 dark:text-zinc-400 font-medium">{res.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* TUTORIAL OVERLAY MODAL */}
+          {tutorialStep !== null && currentTutorialObj && (
+            <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-3 sm:p-4 pointer-events-auto">
+              <div className="w-full max-w-md bg-zinc-900 border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200 relative z-30">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-amber-400 text-zinc-950 font-black flex items-center justify-center text-sm shadow-md">
+                      {tutorialStep + 1}
+                    </div>
+                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                      Anleitung ({tutorialStep + 1} / {TUTORIAL_STEPS.length})
+                    </span>
+                  </div>
+                  <button 
+                    onClick={endTutorial}
+                    className="touch-target p-1 text-zinc-400 hover:text-white transition"
+                    title="Tutorial beenden"
+                  >
+                    <Icons.X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-base sm:text-lg font-bold text-amber-300">{currentTutorialObj.title}</h3>
+                  <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed whitespace-pre-line">
+                    {currentTutorialObj.text}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+                  <button
+                    onClick={prevTutorialStep}
+                    disabled={tutorialStep === 0}
+                    className={`touch-target px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition ${
+                      tutorialStep === 0 
+                        ? 'opacity-30 cursor-not-allowed bg-zinc-800 text-zinc-500' 
+                        : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200'
+                    }`}
+                  >
+                    <Icons.ChevronLeft className="w-4 h-4" /> Zurück
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {TUTORIAL_STEPS.map((_, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`h-1.5 rounded-full transition-all ${
+                          idx === tutorialStep ? 'w-5 bg-amber-400' : 'w-1.5 bg-zinc-700'
+                        }`} 
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={nextTutorialStep}
+                    className="touch-target px-4 py-2 bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold rounded-xl text-xs flex items-center gap-1 transition shadow-md"
+                  >
+                    {tutorialStep < TUTORIAL_STEPS.length - 1 ? (
+                      <>Weiter <Icons.ChevronRight className="w-4 h-4" /></>
+                    ) : (
+                      'Fertig 👍'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* PIN MODAL */}
+          {pinModalOpen && (
+            <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className={`w-full max-w-xs rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
+                darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-stone-100 border-stone-300 text-zinc-900'
+              }`}>
+                <div className="flex items-center justify-between border-b pb-3 border-stone-300/80 dark:border-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-amber-500 text-zinc-950 p-1.5 rounded-lg">
+                      <Icons.KeyRound className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-sm">Admin PIN-Eingabe</h3>
+                  </div>
+                  <button 
+                    onClick={() => setPinModalOpen(false)}
+                    className="touch-target p-1 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
+                  >
+                    <Icons.X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={handlePinSubmit} className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">PIN eingeben:</label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      value={pinInput}
+                      onChange={(e) => {
+                        setPinInput(e.target.value);
+                        setPinError(false);
+                      }}
+                      placeholder="****"
+                      autoFocus
+                      className={`w-full px-3 py-2 rounded-xl text-center font-mono text-lg tracking-widest border focus:outline-none focus:ring-2 focus:ring-amber-500 ${
+                        darkMode ? 'bg-zinc-950 border-zinc-800 text-white' : 'bg-stone-200/80 border-stone-300 text-zinc-900'
+                      }`}
+                    />
+                    {pinError && (
+                      <p className="text-[11px] font-bold text-rose-500 text-center mt-1">Falsche PIN! Bitte erneut versuchen.</p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setPinModalOpen(false)}
+                      className={`touch-target flex-1 py-2 rounded-xl text-xs font-bold border transition ${
+                        darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-300' : 'bg-stone-200 border-stone-300 text-zinc-700'
+                      }`}
+                    >
+                      Abbrechen
+                    </button>
+                    <button
+                      type="submit"
+                      className="touch-target flex-1 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold py-2 rounded-xl text-xs transition active:scale-95"
+                    >
+                      Freischalten
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* PAYPAL MODAL */}
+          {paypalModalOpen && selectedPaypalPlayer && (
+            <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
+                darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-stone-100 border-stone-300 text-zinc-900'
+              }`}>
+                <div className="flex items-center justify-between border-b pb-3 border-stone-300/80 dark:border-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-blue-600 text-white p-2 rounded-xl">
+                      <Icons.CreditCard className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base">PayPal Bezahlung</h3>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Sammelüberweisung an Erwin D.</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setPaypalModalOpen(false)}
+                    className="touch-target p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
+                  >
+                    <Icons.X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div className={`p-3.5 rounded-xl border text-center space-y-1 ${
+                    darkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-stone-200/60 border-stone-300'
+                  }`}>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">Beitrag für {selectedPaypalPlayer.name}</span>
+                    <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{selectedPaypalPlayer.cost.toFixed(2)} €</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">({selectedPaypalPlayer.count} Spiele in der Wintersaison)</p>
+                  </div>
+
+                  <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs text-blue-700 dark:text-blue-300 font-medium space-y-1">
+                    <p className="font-bold">ℹ️ Hinweis zur Überweisung:</p>
+                    <p className="text-[11px] leading-relaxed">
+                      Die Bezahlung der Abogebühr geht gesammelt an Erwin D. Bitte gib bei der Überweisung deinen Namen ({selectedPaypalPlayer.name}) im Verwendungszweck an.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400">PayPal-Link / Adresse:</label>
+                    <div className={`p-2.5 rounded-xl border text-xs font-mono break-all flex items-center justify-between gap-2 ${
+                      darkMode ? 'bg-zinc-950 border-zinc-800 text-blue-400' : 'bg-stone-200/80 border-stone-300 text-blue-700'
+                    }`}>
+                      <span className="truncate">https://paypal.me/tennis-abteilung-spaden</span>
+                      <button
+                        onClick={() => handleCopyPaypalLink("https://paypal.me/tennis-abteilung-spaden")}
+                        className="touch-target p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex-shrink-0 flex items-center justify-center"
+                        title="Link kopieren"
+                      >
+                        {copiedPaypalLink ? <Icons.Check className="w-4 h-4" /> : <Icons.Copy className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex items-center gap-2">
+                  <a
+                    href="https://paypal.me"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="touch-target flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition active:scale-95 text-center"
+                  >
+                    PayPal.me Öffnen <Icons.ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <button
+                    onClick={() => setPaypalModalOpen(false)}
+                    className={`touch-target px-4 py-2.5 rounded-xl text-xs font-bold border transition ${
+                      darkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-300' : 'bg-stone-200 border-stone-300 text-zinc-700'
+                    }`}
+                  >
+                    Schließen
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+</html>
