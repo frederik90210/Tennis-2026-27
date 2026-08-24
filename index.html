@@ -17,6 +17,10 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+  <!-- jsPDF & AutoTable CDN for PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
   <style>
     /* Prevent unwanted mobile horizontal scrolling and touch delays */
     html, body {
@@ -125,8 +129,8 @@
       HelpCircle: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />,
       ChevronLeft: (p) => <Icon {...p} path={<polyline points="15 18 9 12 15 6"/>} />,
       ChevronRight: (p) => <Icon {...p} path={<polyline points="9 18 15 12 9 6"/>} />,
-      Save: (p) => <Icon {...p} path={<><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></>} />,
       Smartphone: (p) => <Icon {...p} path={<><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></>} />,
+      Download: (p) => <Icon {...p} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>} />,
       WhatsApp: (p) => <Icon {...p} viewBox="0 0 24 24" path={<path fill="currentColor" stroke="none" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347zM12 2a10 10 0 0 0-8.384 15.474L2 22l4.67-1.224A10 10 0 1 0 12 2zm0 18a7.95 7.95 0 0 1-4.062-1.112l-.291-.173-2.775.727.74-2.707-.19-.302A7.957 7.957 0 1 1 12 20z"/>} />
     };
 
@@ -192,6 +196,7 @@
 
     const INITIAL_PAID_STATUS = {};
 
+    /* TUTORIAL STEPS CONFIGURATION */
     const TUTORIAL_STEPS = [
       {
         type: 'standard',
@@ -216,15 +221,8 @@
       },
       {
         type: 'standard',
-        title: "Vergangene Spiele ausblenden 👁️",
-        text: "Nutze diesen Schalter, um bereits vergangene Spieltage automatisch auszublenden. So siehst du immer sofort die nächsten bevorstehenden Matches.",
-        targetTab: 'plan',
-        highlightId: 'tutorial-past-toggle'
-      },
-      {
-        type: 'standard',
         title: "WhatsApp Aufstellung teilen 💬",
-        text: "Tippe einfach auf das WhatsApp-Symbol bei einem Spieltag, um die gewählte Doppel-Aufstellung direkt in WhatsApp mit eurer Gruppe zu teilen!",
+        text: "Tippe einfach auf das WhatsApp-Symbol bei einem Spieltag, um die gewählte Aufstellung direkt in WhatsApp mit eurer Gruppe zu teilen!",
         targetTab: 'plan',
         highlightId: 'tutorial-whatsapp-btn'
       },
@@ -244,10 +242,11 @@
       },
       {
         type: 'standard',
-        title: "Kosten & Bezahlung 💳",
-        text: "Hier siehst du die Kostenberechnung der Abogebühr. Die Kosten werden anteilig nach deinen tatsächlichen Einsätzen berechnet. Per Klick kannst du deinen Beitrag direkt per PayPal an Erwin D. überweisen.",
-        targetTab: 'costs',
-        highlightId: 'tutorial-costs-sec'
+        title: "Klassischer PDF-Spielplan 📄",
+        text: "Im Reiter 'Meine Termine' kannst du den Spielplan wie gewohnt als PDF-Tabelle herunterladen.",
+        targetTab: 'myDates',
+        highlightId: 'tutorial-pdf-btn',
+        notice: "Nutze bevorzugt diese Web-App, da nur hier spätere Änderungen, Vertretungen & Einteilungen tagesaktuell angepasst werden können!"
       },
       {
         type: 'homescreen',
@@ -258,8 +257,15 @@
       },
       {
         type: 'standard',
+        title: "Kosten & Bezahlung 💳",
+        text: "Hier siehst du die Kostenberechnung der Abogebühr. Die Kosten werden anteilig nach deinen tatsächlichen Einsätzen berechnet. Per Klick kannst du deinen Beitrag direkt per PayPal an Erwin D. überweisen.",
+        targetTab: 'costs',
+        highlightId: 'tutorial-costs-sec'
+      },
+      {
+        type: 'standard',
         title: "Alles startklar! 🏆",
-        text: "Das war's schon! Über das Fragezeichen-Symbol 'Hilfe' kannst du dieses Tutorial jederzeit wieder starten.\n\nLiebe Grüße Frederik :)",
+        text: "Das war's schon! Über das Fragezeichen-Symbol 'Hilfe' kannst du dieses Tutorial jederzeit wieder starten.\n\nFalls Fragen oder Fehler auftauchen, kannst du dich gerne an mich wenden.\n\nLiebe Grüße Frederik :)",
         targetTab: 'plan',
         highlightId: null
       }
@@ -281,9 +287,8 @@
       const [paypalModalOpen, setPaypalModalOpen] = useState(false);
       const [selectedPaypalPlayer, setSelectedPaypalPlayer] = useState(null);
       const [copiedPaypalLink, setCopiedPaypalLink] = useState(false);
-      const [myTerminePlayer, setMyTerminePlayer] = useState('');
+      const [myTerminePlayer, setMyTerminePlayer] = useState('FD');
       const [copiedPersonalTermine, setCopiedPersonalTermine] = useState(false);
-      const [saveNoticeOpen, setSaveNoticeOpen] = useState(false);
 
       /* Tutorial State */
       const [tutorialStep, setTutorialStep] = useState(null);
@@ -296,8 +301,7 @@
           if (step) {
             setActiveTab(step.targetTab);
             
-            // For "Meine Termine & Kalender-Export" and "Ersatz finden", automatically select Frederik D. as example!
-            if (step.highlightId === 'tutorial-my-dates-sec' || step.highlightId === 'tutorial-swap-btn') {
+            if (step.highlightId === 'tutorial-my-dates-sec' || step.highlightId === 'tutorial-swap-btn' || step.highlightId === 'tutorial-pdf-btn') {
               setMyTerminePlayer('FD');
             }
 
@@ -326,7 +330,8 @@
 
       const formatDate = (dateStr) => {
         const d = new Date(dateStr);
-        return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const formatted = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return dateStr === '2027-03-29' ? `${formatted} 🐰` : formatted;
       };
 
       const getMonthKey = (dateStr) => dateStr.substring(0, 7);
@@ -367,60 +372,6 @@
         } else {
           setPinError(true);
         }
-      };
-
-      const handleSaveUpdatedHtml = () => {
-        const fullSource = document.documentElement.outerHTML;
-
-        // Serialize updated state
-        const playersFormatted = JSON.stringify(players, null, 6);
-        const scheduleFormatted = JSON.stringify(schedule, null, 6);
-        const paidStatusFormatted = JSON.stringify(paidStatus, null, 6);
-
-        // Replace state constants in code string
-        let updatedSource = fullSource
-          .replace(/const INITIAL_PLAYERS = \[\s*[\s\S]*?\n\s*\];/m, `const INITIAL_PLAYERS = ${playersFormatted};`)
-          .replace(/const INITIAL_SCHEDULE = \[\s*[\s\S]*?\n\s*\];/m, `const INITIAL_SCHEDULE = ${scheduleFormatted};`)
-          .replace(/const INITIAL_PAID_STATUS = \{[\s\S]*?\};/m, `const INITIAL_PAID_STATUS = ${paidStatusFormatted};`);
-
-        const blob = new Blob(["<!DOCTYPE html>\n<html lang=\"de\" class=\"h-full\">\n" + updatedSource + "\n</html>"], { type: 'text/html;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "index.html");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        setSaveNoticeOpen(true);
-      };
-
-      const startTutorial = () => {
-        setHomeScreenPromptChoice(null);
-        setSelectedBrowserInstructions(null);
-        setTutorialStep(0);
-        setActiveTab(TUTORIAL_STEPS[0].targetTab);
-      };
-
-      const nextTutorialStep = () => {
-        if (tutorialStep === null) return;
-        if (tutorialStep < TUTORIAL_STEPS.length - 1) {
-          const nextIndex = tutorialStep + 1;
-          setTutorialStep(nextIndex);
-          setActiveTab(TUTORIAL_STEPS[nextIndex].targetTab);
-        } else {
-          setTutorialStep(null);
-        }
-      };
-
-      const prevTutorialStep = () => {
-        if (tutorialStep === null || tutorialStep <= 0) return;
-        const prevIndex = tutorialStep - 1;
-        setTutorialStep(prevIndex);
-        setActiveTab(TUTORIAL_STEPS[prevIndex].targetTab);
-      };
-
-      const endTutorial = () => {
-        setTutorialStep(null);
       };
 
       const validationResults = useMemo(() => {
@@ -624,6 +575,88 @@
         document.body.removeChild(link);
       };
 
+      const downloadPDFPlan = () => {
+        try {
+          if (!window.jspdf || !window.jspdf.jsPDF) {
+            window.print();
+            return;
+          }
+          const { jsPDF } = window.jspdf;
+
+          const playerIds = ['FB', 'PU', 'VK', 'JW', 'ED', 'JK', 'MC', 'FD', 'FR', 'HR', 'LS', 'MZ'];
+          const playerHeaders = [
+            "Woche", "Datum",
+            "Frank B. (FB)", "Philipp U. (PU)", "Vanessa K. (VK)", "Joanna W. (JW)",
+            "Erwin D. (ED)", "Julia K. (JK)", "Marc C. (MC)", "Frederik D. (FD)",
+            "Fredi R. (FR)", "Heinz R. (HR)", "Lutz S. (LS)", "Martin Z. (MZ)"
+          ];
+
+          const tableRows = schedule.map(item => {
+            const formatted = item.date === '2027-03-29' 
+              ? `${formatDate(item.date).replace(' 🐰', '')} 🐰` 
+              : formatDate(item.date);
+            const row = [item.week.toString(), formatted];
+
+            playerIds.forEach(pId => {
+              row.push(item.players.includes(pId) ? pId : '');
+            });
+            return row;
+          });
+
+          // Calculate exact table height using a dummy document for perfect vertical centering
+          const dummyDoc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+          dummyDoc.autoTable({
+            head: [playerHeaders],
+            body: tableRows,
+            startY: 0,
+            margin: { left: 6, right: 6 },
+            theme: 'grid',
+            styles: { fontSize: 6.5, cellPadding: 0.8, halign: 'center', valign: 'middle' },
+            headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.5, cellPadding: 1 },
+            alternateRowStyles: { fillColor: [245, 245, 240] },
+            columnStyles: {
+              0: { cellWidth: 12 },
+              1: { cellWidth: 22 }
+            }
+          });
+
+          const tableHeight = dummyDoc.previousAutoTable.finalY;
+          const headerBlockHeight = 10; // Space for Title + Subtitle
+          const totalContentHeight = tableHeight + headerBlockHeight;
+          const pageHeight = 210; // A4 Landscape height in mm
+          const topMargin = Math.max(8, (pageHeight - totalContentHeight) / 2);
+
+          const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+          doc.setFontSize(13);
+          doc.setTextColor(6, 95, 70);
+          doc.text("Tennis Wintersaison 2026 / 2027 - Halle Spaden", 10, topMargin + 3);
+
+          doc.setFontSize(8);
+          doc.setTextColor(80, 80, 80);
+          doc.text("Montags 17:30 - 19:30 Uhr | Termine: 21.09.2026 - 19.04.2027", 10, topMargin + 7.5);
+
+          doc.autoTable({
+            head: [playerHeaders],
+            body: tableRows,
+            startY: topMargin + 10,
+            margin: { left: 6, right: 6 },
+            theme: 'grid',
+            styles: { fontSize: 6.5, cellPadding: 0.8, halign: 'center', valign: 'middle' },
+            headStyles: { fillColor: [6, 95, 70], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.5, cellPadding: 1 },
+            alternateRowStyles: { fillColor: [245, 245, 240] },
+            columnStyles: {
+              0: { cellWidth: 12 },
+              1: { cellWidth: 22 }
+            }
+          });
+
+          doc.save("Tennisplan_Wintersaison_2026_2027.pdf");
+        } catch (e) {
+          console.error("PDF-Generierung fehlgeschlagen:", e);
+        }
+      };
+
       const handleTogglePlayerInWeek = (weekNum, pId) => {
         setSchedule(prev => prev.map(item => {
           if (item.week !== weekNum) return item;
@@ -646,7 +679,7 @@
         const teamAText = balance.teamA.map(p => (isAdminMode ? `${p.name} (⭐${p.rating})` : p.name)).join(' + ');
         const teamBText = balance.teamB.map(p => (isAdminMode ? `${p.name} (⭐${p.rating})` : p.name)).join(' + ');
 
-        let text = `🎾 *Tennis Spieltag ${formatDate(item.date)}* (17:30 - 19:30 Uhr)\n\n*Empfohlenes Doppel:*\nTeam A: ${teamAText}\nTeam B: ${teamBText}\n`;
+        let text = `🎾 *Tennis Spieltag ${formatDate(item.date)}*\n\nTeam A: ${teamAText}\nTeam B: ${teamBText}\n`;
         if (isAdminMode) {
           text += `\nNiveau: ${balance.label} (Ø ${balance.avg} ⭐)\n`;
         }
@@ -661,8 +694,9 @@
       };
 
       const openSwapWhatsApp = (dateStr, playerName) => {
+        const firstName = playerName ? playerName.split(' ')[0] : '';
         const formattedDate = formatDate(dateStr);
-        const text = `Hallo zusammen! 🎾\nIch bin am ${formattedDate} leider verhindert... Kann jemand für mich einspringen?\nLiebe Grüße ${playerName}`;
+        const text = `Hallo zusammen! 🎾\nIch bin am ${formattedDate} leider verhindert... Kann jemand für mich einspringen?\nLiebe Grüße ${firstName}`;
 
         try {
           navigator.clipboard.writeText(text);
@@ -708,9 +742,37 @@
         setTimeout(() => setCopiedPersonalTermine(false), 2500);
       };
 
+      const startTutorial = () => {
+        setHomeScreenPromptChoice(null);
+        setSelectedBrowserInstructions(null);
+        setTutorialStep(0);
+        setActiveTab(TUTORIAL_STEPS[0].targetTab);
+      };
+
+      const nextTutorialStep = () => {
+        if (tutorialStep === null) return;
+        if (tutorialStep < TUTORIAL_STEPS.length - 1) {
+          const nextIndex = tutorialStep + 1;
+          setTutorialStep(nextIndex);
+          setActiveTab(TUTORIAL_STEPS[nextIndex].targetTab);
+        } else {
+          setTutorialStep(null);
+        }
+      };
+
+      const prevTutorialStep = () => {
+        if (tutorialStep === null || tutorialStep <= 0) return;
+        const prevIndex = tutorialStep - 1;
+        setTutorialStep(prevIndex);
+        setActiveTab(TUTORIAL_STEPS[prevIndex].targetTab);
+      };
+
+      const endTutorial = () => {
+        setTutorialStep(null);
+      };
+
       const currentTutorialObj = tutorialStep !== null ? TUTORIAL_STEPS[tutorialStep] : null;
 
-      // Dynamic PayPal Link with exact player amount
       const currentPaypalLink = useMemo(() => {
         if (!selectedPaypalPlayer) return "https://www.paypal.me/ErwinDellacher";
         return `https://www.paypal.me/ErwinDellacher/${selectedPaypalPlayer.cost.toFixed(2)}`;
@@ -728,32 +790,19 @@
               </div>
 
               {/* Action Controls */}
-              {(activeTab === 'costs' || isAdminMode) && (
-                <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
-                  {isAdminMode && (
-                    <button
-                      onClick={handleSaveUpdatedHtml}
-                      className="touch-target p-2 sm:p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 border border-emerald-300 transition-all shadow-md active:scale-95 flex items-center justify-center font-bold gap-1.5"
-                      title="Änderungen als index.html für GitHub speichern"
-                    >
-                      <Icons.Save className="w-5 h-5" />
-                      <span className="hidden sm:inline text-xs font-bold">Speichern</span>
-                    </button>
-                  )}
-
-                  <button 
-                    onClick={handleAdminToggle}
-                    className={`touch-target p-2 sm:p-2.5 rounded-xl border transition-all shadow-md active:scale-95 flex items-center justify-center ${
-                      isAdminMode 
-                        ? 'bg-amber-400 text-zinc-950 border-amber-300 shadow-amber-400/20' 
-                        : 'bg-zinc-800/80 text-zinc-300 border-zinc-700/80 hover:bg-zinc-700'
-                    }`}
-                    title={isAdminMode ? "Admin-Modus beenden" : "Admin-Modus freischalten (PIN 3100)"}
-                  >
-                    {isAdminMode ? <Icons.Unlock className="w-5 h-5 font-bold" /> : <Icons.Lock className="w-5 h-5" />}
-                  </button>
-                </div>
-              )}
+              <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
+                <button 
+                  onClick={handleAdminToggle}
+                  className={`touch-target p-2 sm:p-2.5 rounded-xl border transition-all shadow-md active:scale-95 flex items-center justify-center ${
+                    isAdminMode 
+                      ? 'bg-amber-400 text-zinc-950 border-amber-300 shadow-amber-400/20' 
+                      : 'bg-zinc-800/80 text-zinc-300 border-zinc-700/80 hover:bg-zinc-700'
+                  }`}
+                  title={isAdminMode ? "Admin-Modus beenden" : "Admin-Modus freischalten (PIN 3100)"}
+                >
+                  {isAdminMode ? <Icons.Unlock className="w-5 h-5 font-bold" /> : <Icons.Lock className="w-5 h-5" />}
+                </button>
+              </div>
               
               <div className="relative z-10 px-6 sm:px-12 space-y-1.5 text-center flex flex-col items-center justify-center">
                 <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
@@ -769,7 +818,6 @@
                 </h1>
               </div>
 
-              {/* Navigation Tabs */}
               <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-3 border-t border-emerald-800/40">
                 <button
                   onClick={() => setActiveTab('plan')}
@@ -888,10 +936,7 @@
                   </div>
 
                   <div 
-                    id="tutorial-past-toggle" 
-                    className={`touch-target flex items-center justify-between gap-3 px-3.5 py-2 border rounded-xl transition-all scroll-mt-16 sm:scroll-mt-20 ${
-                      currentTutorialObj?.highlightId === 'tutorial-past-toggle' ? 'tutorial-highlight ring-2 ring-amber-400' : ''
-                    } ${darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-stone-200/80 border-stone-300'}`}
+                    className={`touch-target flex items-center justify-between gap-3 px-3.5 py-2 border rounded-xl transition-all ${darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-stone-200/80 border-stone-300'}`}
                   >
                     <span className="text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap">
                       {hidePastGames ? <Icons.EyeOff className="w-4 h-4 text-zinc-400" /> : <Icons.Eye className="w-4 h-4 text-emerald-600" />}
@@ -976,7 +1021,7 @@
                               darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-stone-200/70 border-stone-300/80'
                             }`}>
                               <div className="flex items-center justify-between text-zinc-500 dark:text-zinc-400 font-semibold text-[11px] mb-1">
-                                <span>Empfohlenes Doppel</span>
+                                <span>Doppel</span>
                                 {isAdminMode && (
                                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${balance.color}`}>
                                     {balance.label} (Ø {balance.avg} ⭐)
@@ -1108,6 +1153,21 @@
                           {myPlayerObj.count} Termine in der Saison
                         </p>
                       </div>
+
+                      {/* PDF Download Button */}
+                      <div className="flex flex-wrap items-center gap-2 sm:self-center">
+                        <button
+                          id="tutorial-pdf-btn"
+                          onClick={downloadPDFPlan}
+                          className={`touch-target bg-rose-700 hover:bg-rose-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-95 scroll-mt-20 ${
+                            currentTutorialObj?.highlightId === 'tutorial-pdf-btn' ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400 text-zinc-950 border-amber-400 font-black' : ''
+                          }`}
+                          title="Klassischen Tennisplan als PDF-Datei herunterladen"
+                        >
+                          <Icons.Download className="w-4 h-4" />
+                          <span>PDF Spielplan</span>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="space-y-3">
@@ -1150,7 +1210,7 @@
                               </span>
                               {!past && (
                                 <button
-                                  id="tutorial-swap-btn"
+                                  id={isTutorialHighlightSwap ? "tutorial-swap-btn" : undefined}
                                   onClick={() => openSwapWhatsApp(d.date, myPlayerObj.name)}
                                   className={`touch-target px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition active:scale-95 flex items-center gap-1 flex-shrink-0 text-[11px] font-bold scroll-mt-20 sm:scroll-mt-24 ${
                                     isTutorialHighlightSwap ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400 text-zinc-950 border-amber-400 font-black' : ''
@@ -1173,7 +1233,9 @@
             )}
 
             {activeTab === 'costs' && (
-              <div className="space-y-6">
+              <div id="tutorial-costs-sec" className={`space-y-6 scroll-mt-16 sm:scroll-mt-20 ${
+                currentTutorialObj?.highlightId === 'tutorial-costs-sec' ? 'tutorial-highlight p-1 rounded-2xl ring-4 ring-amber-400' : ''
+              }`}>
                 
                 {/* Information Banner */}
                 <div className="bg-gradient-to-r from-zinc-900 via-indigo-950 to-zinc-900 text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3 border border-zinc-800">
@@ -1395,10 +1457,9 @@
 
           </div>
 
+          {/* TUTORIAL MODAL */}
           {tutorialStep !== null && currentTutorialObj && (
-            <div className={`fixed inset-0 z-50 bg-black/40 flex p-3 sm:p-4 pointer-events-auto transition-all ${
-              currentTutorialObj.highlightId ? 'items-end pb-6 sm:items-center sm:pb-0 justify-center' : 'items-center justify-center'
-            }`}>
+            <div className="fixed inset-0 z-50 bg-black/40 flex p-2.5 sm:p-4 pointer-events-auto transition-all items-end pb-3 justify-center sm:items-center sm:pb-0">
               <div className="w-full max-w-md bg-zinc-900 border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200 relative z-30">
                 <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                   <div className="flex items-center gap-2">
@@ -1536,6 +1597,12 @@
                     <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed whitespace-pre-line">
                       {currentTutorialObj.text}
                     </p>
+                    {currentTutorialObj.notice && (
+                      <div className="bg-amber-500/20 border border-amber-400/40 p-2.5 rounded-xl flex items-start gap-2 text-amber-200 text-xs font-semibold mt-2">
+                        <Icons.Zap className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                        <span><strong>Wichtige Empfehlung:</strong> {currentTutorialObj.notice}</span>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1580,47 +1647,7 @@
             </div>
           )}
 
-          {/* Save Notice Modal */}
-          {saveNoticeOpen && (
-            <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className={`w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
-                darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-stone-100 border-stone-300 text-zinc-900'
-              }`}>
-                <div className="flex items-center justify-between border-b pb-3 border-stone-300/80 dark:border-zinc-800">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-emerald-500 text-zinc-950 p-1.5 rounded-lg font-bold">
-                      <Icons.Save className="w-4 h-4" />
-                    </div>
-                    <h3 className="font-bold text-sm">index.html heruntergeladen!</h3>
-                  </div>
-                  <button 
-                    onClick={() => setSaveNoticeOpen(false)}
-                    className="touch-target p-1 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
-                  >
-                    <Icons.X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="space-y-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">
-                  <p className="font-semibold text-emerald-600 dark:text-emerald-400">
-                    ✅ Alle deine aktuellen Änderungen wurden in die neue index.html-Datei übernommen.
-                  </p>
-                  <p>
-                    Lade diese heruntergeladene <strong>index.html</strong>-Datei einfach bei GitHub in deinem Repository hoch, um die Website online zu aktualisieren.
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setSaveNoticeOpen(false)}
-                  className="touch-target w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md"
-                >
-                  Verstanden 👍
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Admin PIN Modal */}
+          {/* PIN MODAL */}
           {pinModalOpen && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-xs rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1685,7 +1712,7 @@
             </div>
           )}
 
-          {/* PayPal Payment Modal */}
+          {/* PAYPAL MODAL */}
           {paypalModalOpen && selectedPaypalPlayer && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1767,6 +1794,3 @@
   </script>
 </body>
 </html>
-```
-
-Die Anwendung lädt jetzt vollständig ohne Fehlermeldung!
