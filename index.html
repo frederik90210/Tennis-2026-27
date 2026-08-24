@@ -202,6 +202,13 @@
       },
       {
         type: 'standard',
+        title: "Dunkelmodus 🌙",
+        text: "Mit diesem Button wechselst du jederzeit bequem zwischen dem hellen und dem augenschonenden dunklen Design – ideal für die Nutzung am Abend oder bei hellem Sonnenlicht.",
+        targetTab: 'plan',
+        highlightId: 'tutorial-dark-toggle'
+      },
+      {
+        type: 'standard',
         title: "Spieler-Filter 👥",
         text: "Klicke im Spielplan auf '👥 Alle Spieler', um gezielt nur deine eigenen Spieltage anzuzeigen oder zu prüfen, wann deine Mitspieler eingeteilt sind.",
         targetTab: 'plan',
@@ -230,22 +237,22 @@
       },
       {
         type: 'standard',
+        title: "Ersatz finden per WhatsApp 🔄",
+        text: "Wenn du an einem deiner Termine verhindert bist, tippe in 'Meine Termine' einfach bei dem betreffenden Spieltag auf 'Ersatz finden'. Es öffnet sich sofort WhatsApp mit einer fertigen Ersatzanfrage an eure Gruppe!",
+        targetTab: 'myDates',
+        highlightId: 'tutorial-swap-btn'
+      },
+      {
+        type: 'standard',
         title: "Kosten & Bezahlung 💳",
-        text: "Hier siehst du die faire Kostenberechnung der Abogebühr. Die Kosten werden anteilig nach deinen tatsächlichen Einsätzen berechnet. Per Klick kannst du deinen Beitrag direkt per PayPal an Erwin D. überweisen.",
+        text: "Hier siehst du die Kostenberechnung der Abogebühr. Die Kosten werden anteilig nach deinen tatsächlichen Einsätzen berechnet. Per Klick kannst du deinen Beitrag direkt per PayPal an Erwin D. überweisen.",
         targetTab: 'costs',
         highlightId: 'tutorial-costs-sec'
       },
       {
-        type: 'standard',
-        title: "Dunkelmodus 🌙",
-        text: "Mit diesem Button wechselst du jederzeit bequem zwischen dem hellen und dem augenschonenden dunklen Design – ideal für die Nutzung am Abend oder bei hellem Sonnenlicht.",
-        targetTab: 'plan',
-        highlightId: 'tutorial-dark-toggle'
-      },
-      {
         type: 'homescreen',
         title: "App auf dem Hauptbildschirm speichern 📲",
-        text: "Möchtest du diese App direkt auf deinen Smartphone-Hauptbildschirm (Home-Bildschirm) speichern, um sie wie eine normale App mit einem Klick zu öffnen?",
+        text: "Möchtest du diese App direkt auf deinen Smartphone-Hauptbildschirm speichern, um sie wie eine normale App mit einem Klick zu öffnen?",
         targetTab: 'plan',
         highlightId: null
       },
@@ -264,7 +271,6 @@
       const [selectedPlayer, setSelectedPlayer] = useState('ALL');
       const [activeTab, setActiveTab] = useState('plan');
       const [editingWeek, setEditingWeek] = useState(null);
-      const [copiedIndex, setCopiedIndex] = useState(null);
       const [isAdminMode, setIsAdminMode] = useState(false);
       const [pinModalOpen, setPinModalOpen] = useState(false);
       const [pinInput, setPinInput] = useState('');
@@ -279,7 +285,7 @@
       const [copiedPersonalTermine, setCopiedPersonalTermine] = useState(false);
       const [saveNoticeOpen, setSaveNoticeOpen] = useState(false);
 
-      /* Tutorial and Homescreen App Installation State */
+      /* Tutorial State */
       const [tutorialStep, setTutorialStep] = useState(null);
       const [homeScreenPromptChoice, setHomeScreenPromptChoice] = useState(null);
       const [selectedBrowserInstructions, setSelectedBrowserInstructions] = useState(null);
@@ -287,16 +293,25 @@
       useEffect(() => {
         if (tutorialStep !== null) {
           const step = TUTORIAL_STEPS[tutorialStep];
-          if (step && step.highlightId && step.highlightId !== 'tutorial-costs-sec') {
-            const timer = setTimeout(() => {
-              const el = document.getElementById(step.highlightId);
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }, 120);
-            return () => clearTimeout(timer);
-          } else if (step && !step.highlightId) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (step) {
+            setActiveTab(step.targetTab);
+            
+            // For "Meine Termine & Kalender-Export" and "Ersatz finden", automatically select Frederik D. as example!
+            if (step.highlightId === 'tutorial-my-dates-sec' || step.highlightId === 'tutorial-swap-btn') {
+              setMyTerminePlayer('FD');
+            }
+
+            if (step.highlightId && step.highlightId !== 'tutorial-costs-sec') {
+              const timer = setTimeout(() => {
+                const el = document.getElementById(step.highlightId);
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }, 150);
+              return () => clearTimeout(timer);
+            } else if (!step.highlightId) {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
           }
         }
       }, [tutorialStep]);
@@ -645,6 +660,18 @@
         window.open(url, '_blank');
       };
 
+      const openSwapWhatsApp = (dateStr, playerName) => {
+        const formattedDate = formatDate(dateStr);
+        const text = `Hallo zusammen! 🎾\nIch bin am ${formattedDate} leider verhindert... Kann jemand für mich einspringen?\nLiebe Grüße ${playerName}`;
+
+        try {
+          navigator.clipboard.writeText(text);
+        } catch (e) {}
+
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+      };
+
       const openPaypalModalForPlayer = (player) => {
         setSelectedPaypalPlayer(player);
         setPaypalModalOpen(true);
@@ -662,6 +689,13 @@
         return playerStats.find(p => p.id === myTerminePlayer) || null;
       }, [playerStats, myTerminePlayer]);
 
+      const sortedMyPlayerDates = useMemo(() => {
+        if (!myPlayerObj) return [];
+        const upcoming = myPlayerObj.dates.filter(d => !isPastDate(d.date));
+        const past = myPlayerObj.dates.filter(d => isPastDate(d.date));
+        return [...upcoming, ...past];
+      }, [myPlayerObj]);
+
       const copyPersonalTermineWhatsApp = () => {
         if (!myPlayerObj) return;
         let text = `🎾 *Tennis Termine 2026/2027 für ${myPlayerObj.name}* (${myPlayerObj.count} Spiele)\n\n`;
@@ -676,32 +710,37 @@
 
       const currentTutorialObj = tutorialStep !== null ? TUTORIAL_STEPS[tutorialStep] : null;
 
+      // Dynamic PayPal Link with exact player amount
+      const currentPaypalLink = useMemo(() => {
+        if (!selectedPaypalPlayer) return "https://www.paypal.me/ErwinDellacher";
+        return `https://www.paypal.me/ErwinDellacher/${selectedPaypalPlayer.cost.toFixed(2)}`;
+      }, [selectedPaypalPlayer]);
+
       return (
         <div className={`min-h-screen w-full transition-colors duration-200 p-2 sm:p-4 md:p-6 font-sans pb-safe ${
           darkMode ? 'bg-zinc-950 text-zinc-100' : 'bg-stone-300/80 text-zinc-900'
         }`}>
           <div className="max-w-6xl mx-auto space-y-3 sm:space-y-6 w-full">
             
-            {/* Header Banner */}
             <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-white rounded-2xl p-3.5 sm:p-6 shadow-xl border border-emerald-800/40 relative overflow-hidden">
               <div className="absolute -right-6 -bottom-8 opacity-20 pointer-events-none text-emerald-300">
                 <TennisBallIcon className="w-44 h-44 sm:w-56 sm:h-56" />
               </div>
 
-              {/* Action Controls in Top-Right Corner */}
-              <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
-                {isAdminMode && (
-                  <button
-                    onClick={handleSaveUpdatedHtml}
-                    className="touch-target p-2 sm:p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 border border-emerald-300 transition-all shadow-md active:scale-95 flex items-center justify-center font-bold gap-1.5"
-                    title="Änderungen als index.html für GitHub speichern"
-                  >
-                    <Icons.Save className="w-5 h-5" />
-                    <span className="hidden sm:inline text-xs font-bold">Speichern</span>
-                  </button>
-                )}
+              {/* Action Controls */}
+              {(activeTab === 'costs' || isAdminMode) && (
+                <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
+                  {isAdminMode && (
+                    <button
+                      onClick={handleSaveUpdatedHtml}
+                      className="touch-target p-2 sm:p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 border border-emerald-300 transition-all shadow-md active:scale-95 flex items-center justify-center font-bold gap-1.5"
+                      title="Änderungen als index.html für GitHub speichern"
+                    >
+                      <Icons.Save className="w-5 h-5" />
+                      <span className="hidden sm:inline text-xs font-bold">Speichern</span>
+                    </button>
+                  )}
 
-                {(activeTab === 'costs' || isAdminMode) && (
                   <button 
                     onClick={handleAdminToggle}
                     className={`touch-target p-2 sm:p-2.5 rounded-xl border transition-all shadow-md active:scale-95 flex items-center justify-center ${
@@ -713,8 +752,8 @@
                   >
                     {isAdminMode ? <Icons.Unlock className="w-5 h-5 font-bold" /> : <Icons.Lock className="w-5 h-5" />}
                   </button>
-                )}
-              </div>
+                </div>
+              )}
               
               <div className="relative z-10 px-6 sm:px-12 space-y-1.5 text-center flex flex-col items-center justify-center">
                 <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
@@ -821,7 +860,6 @@
               </div>
             </div>
 
-            {}
             {activeTab === 'plan' && (
               <div className="space-y-3 sm:space-y-4">
                 
@@ -888,6 +926,7 @@
                       const balance = getMatchBalance(item.players);
                       const isEditingThisWeek = editingWeek === item.week;
                       const isPast = isPastDate(item.date);
+                      const isTutorialHighlightWhatsapp = currentTutorialObj?.highlightId === 'tutorial-whatsapp-btn';
 
                       return (
                         <div 
@@ -1003,10 +1042,10 @@
                             )}
 
                             <button
-                              id="tutorial-whatsapp-btn"
+                              id={idx === 0 ? "tutorial-whatsapp-btn" : undefined}
                               onClick={() => openWhatsApp(item)}
                               className={`touch-target p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition active:scale-95 ml-auto flex items-center justify-center scroll-mt-20 sm:scroll-mt-24 ${
-                                currentTutorialObj?.highlightId === 'tutorial-whatsapp-btn' ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400 text-zinc-950 border-amber-400' : ''
+                                isTutorialHighlightWhatsapp ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400 text-zinc-950 border-amber-400' : ''
                               }`}
                               title="Aufstellung direkt in WhatsApp öffnen & teilen"
                             >
@@ -1023,7 +1062,6 @@
               </div>
             )}
 
-            {}
             {activeTab === 'myDates' && (
               <div id="tutorial-my-dates-sec" className={`space-y-4 rounded-2xl transition-all scroll-mt-16 sm:scroll-mt-20 ${
                 currentTutorialObj?.highlightId === 'tutorial-my-dates-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
@@ -1091,20 +1129,38 @@
 
                       <h4 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider pt-2">Eingeteilte Spieltage (Montags 17:30 - 19:30 Uhr):</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                        {myPlayerObj.dates.map((d, i) => {
+                        {sortedMyPlayerDates.map((d, i) => {
                           const past = isPastDate(d.date);
+                          const isTutorialHighlightSwap = currentTutorialObj?.highlightId === 'tutorial-swap-btn';
+
                           return (
                             <div 
                               key={i} 
-                              className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between ${
+                              className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between gap-2 transition-all ${
                                 past 
-                                  ? 'opacity-50 bg-zinc-800/40 text-zinc-500 border-zinc-700' 
+                                  ? 'opacity-40 bg-stone-200/80 text-zinc-400 border-stone-300 dark:bg-zinc-800/40 dark:text-zinc-500 dark:border-zinc-800' 
                                   : darkMode
                                     ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800'
                                     : 'bg-emerald-100/70 text-zinc-800 border-emerald-300'
                               }`}
                             >
-                              <span className="font-bold">📅 {formatDate(d.date)}</span>
+                              <span className="font-bold flex items-center gap-1.5">
+                                📅 {formatDate(d.date)}
+                                {past && <span className="text-[10px] font-normal italic">(vergangen)</span>}
+                              </span>
+                              {!past && (
+                                <button
+                                  id="tutorial-swap-btn"
+                                  onClick={() => openSwapWhatsApp(d.date, myPlayerObj.name)}
+                                  className={`touch-target px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition active:scale-95 flex items-center gap-1 flex-shrink-0 text-[11px] font-bold scroll-mt-20 sm:scroll-mt-24 ${
+                                    isTutorialHighlightSwap ? 'tutorial-highlight ring-4 ring-amber-400 scale-105 bg-amber-400 text-zinc-950 border-amber-400 font-black' : ''
+                                  }`}
+                                  title="Ersatzanfrage per WhatsApp an die Gruppe senden"
+                                >
+                                  <Icons.WhatsApp className="w-3.5 h-3.5" />
+                                  <span>Ersatz finden</span>
+                                </button>
+                              )}
                             </div>
                           );
                         })}
@@ -1112,14 +1168,14 @@
                     </div>
                   </div>
                 )}
+
               </div>
             )}
 
-            {/* Costs Section */}
             {activeTab === 'costs' && (
-              <div id="tutorial-costs-sec" className={`space-y-4 rounded-2xl transition-all ${
-                currentTutorialObj?.highlightId === 'tutorial-costs-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
-              }`}>
+              <div className="space-y-6">
+                
+                {/* Information Banner */}
                 <div className="bg-gradient-to-r from-zinc-900 via-indigo-950 to-zinc-900 text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3 border border-zinc-800">
                   <div className="flex items-center gap-2">
                     <span className="bg-amber-400 text-zinc-900 text-xs font-black px-2 py-0.5 rounded uppercase">Information</span>
@@ -1133,10 +1189,11 @@
                   </p>
                   <div className="bg-amber-500/20 border border-amber-400/40 p-2.5 rounded-xl flex items-center gap-2 text-amber-200 text-xs font-semibold">
                     <Icons.Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                    <span><strong>Lichtgeld:</strong> Das Lichtgeld beträgt zusätzlich 2 € pro Stunde (4 € pro Spieltag)</span>
+                    <span><strong>Lichtgeld:</strong> Das Lichtgeld beträgt zusätzlich <strong>4 € pro Spieltag (1 € pro Person)</strong>.</span>
                   </div>
                 </div>
 
+                {/* Individual Player Cost Cards */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between px-1">
                     <div>
@@ -1185,16 +1242,16 @@
                           <div className="space-y-2 pt-1">
                             <button
                               onClick={() => openPaypalModalForPlayer(p)}
-                              className="touch-target w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95"
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95"
                             >
-                              <Icons.CreditCard className="w-4 h-4" />
+                              <Icons.CreditCard className="w-3.5 h-3.5" />
                               <span>PayPal an Erwin D.</span>
                             </button>
 
                             {isAdminMode && (
                               <button
                                 onClick={() => togglePaymentStatus(p.id)}
-                                className={`touch-target w-full py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 border ${
+                                className={`w-full py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 border ${
                                   isPaid 
                                     ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20' 
                                     : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
@@ -1215,7 +1272,6 @@
               </div>
             )}
 
-            {}
             {isAdminMode && activeTab === 'players' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
@@ -1260,7 +1316,7 @@
                             <button
                               key={star}
                               onClick={() => handleUpdateRating(p.id, star)}
-                              className="touch-target p-1 hover:scale-125 transition"
+                              className="hover:scale-125 transition"
                               title={`Stufe ${star}`}
                             >
                               <Icons.Star className={`w-4 h-4 ${star <= p.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300 dark:text-zinc-700'}`} />
@@ -1274,7 +1330,6 @@
               </div>
             )}
 
-            {}
             {isAdminMode && activeTab === 'rules' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
@@ -1340,9 +1395,10 @@
 
           </div>
 
-          {}
           {tutorialStep !== null && currentTutorialObj && (
-            <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4 pointer-events-auto transition-all">
+            <div className={`fixed inset-0 z-50 bg-black/40 flex p-3 sm:p-4 pointer-events-auto transition-all ${
+              currentTutorialObj.highlightId ? 'items-end pb-6 sm:items-center sm:pb-0 justify-center' : 'items-center justify-center'
+            }`}>
               <div className="w-full max-w-md bg-zinc-900 border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200 relative z-30">
                 <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                   <div className="flex items-center gap-2">
@@ -1456,7 +1512,7 @@
                           <div className="p-3 bg-zinc-950/80 border border-amber-400/30 rounded-xl space-y-1.5 text-xs text-zinc-200">
                             <p className="font-bold text-amber-300">Anleitung für Mozilla Firefox:</p>
                             <ol className="list-decimal list-inside space-y-1 text-[11px] leading-relaxed">
-                              <li>Tippe auf das <strong>Firefox Menü (⋮)</strong>.</li>
+                              <li>Tippe auf das <strong>Firefox-Menü (⋮)</strong>.</li>
                               <li>Wähle <strong>„Zum Startbildschirm hinzufügen“</strong> oder <strong>„Installieren“</strong>.</li>
                               <li>Bestätige den Vorgang. Fertig!</li>
                             </ol>
@@ -1524,7 +1580,7 @@
             </div>
           )}
 
-          {}
+          {/* Save Notice Modal */}
           {saveNoticeOpen && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1547,10 +1603,10 @@
 
                 <div className="space-y-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">
                   <p className="font-semibold text-emerald-600 dark:text-emerald-400">
-                    ✅ Alle deine aktuellen Änderungen (Aufstellungen, Spielstärken & Zahlungsstatus) wurden in die neue index.html-Datei übernommen.
+                    ✅ Alle deine aktuellen Änderungen wurden in die neue index.html-Datei übernommen.
                   </p>
                   <p>
-                    Lade diese heruntergeladene <strong>index.html</strong>-Datei einfach bei GitHub in deinem Repository hoch, um die Website online für alle zu aktualisieren.
+                    Lade diese heruntergeladene <strong>index.html</strong>-Datei einfach bei GitHub in deinem Repository hoch, um die Website online zu aktualisieren.
                   </p>
                 </div>
 
@@ -1564,7 +1620,7 @@
             </div>
           )}
 
-          {}
+          {/* Admin PIN Modal */}
           {pinModalOpen && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-xs rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1629,7 +1685,7 @@
             </div>
           )}
 
-          {}
+          {/* PayPal Payment Modal */}
           {paypalModalOpen && selectedPaypalPlayer && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1662,23 +1718,16 @@
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">({selectedPaypalPlayer.count} Spiele in der Wintersaison)</p>
                   </div>
 
-                  <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs text-blue-700 dark:text-blue-300 font-medium space-y-1">
-                    <p className="font-bold">ℹ️ Hinweis zur Überweisung:</p>
-                    <p className="text-[11px] leading-relaxed">
-                      Die Bezahlung der Abogebühr geht an Erwin D. Bitte gib bei der Überweisung deinen Namen ({selectedPaypalPlayer.name}) im Verwendungszweck an.
-                    </p>
-                  </div>
-
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400">PayPal-Link / Adresse:</label>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400">PayPal-Link / Adresse (inkl. Betrag):</label>
                     <div className={`p-2.5 rounded-xl border text-xs font-mono break-all flex items-center justify-between gap-2 ${
                       darkMode ? 'bg-zinc-950 border-zinc-800 text-blue-400' : 'bg-stone-200/80 border-stone-300 text-blue-700'
                     }`}>
-                      <span className="truncate">https://paypal.me/tennis-abteilung-spaden</span>
+                      <span className="truncate">{currentPaypalLink}</span>
                       <button
-                        onClick={() => handleCopyPaypalLink("https://paypal.me/tennis-abteilung-spaden")}
+                        onClick={() => handleCopyPaypalLink(currentPaypalLink)}
                         className="touch-target p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex-shrink-0 flex items-center justify-center"
-                        title="Link kopieren"
+                        title="Link mit Betrag kopieren"
                       >
                         {copiedPaypalLink ? <Icons.Check className="w-4 h-4" /> : <Icons.Copy className="w-4 h-4" />}
                       </button>
@@ -1688,12 +1737,12 @@
 
                 <div className="pt-2 flex items-center gap-2">
                   <a
-                    href="https://paypal.me"
+                    href={currentPaypalLink}
                     target="_blank"
                     rel="noreferrer"
                     className="touch-target flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition active:scale-95 text-center"
                   >
-                    PayPal.me Öffnen <Icons.ExternalLink className="w-3.5 h-3.5" />
+                    PayPal App Öffnen <Icons.ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <button
                     onClick={() => setPaypalModalOpen(false)}
@@ -1718,3 +1767,6 @@
   </script>
 </body>
 </html>
+```
+
+Die Anwendung lädt jetzt vollständig ohne Fehlermeldung!
