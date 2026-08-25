@@ -1342,13 +1342,15 @@
                           </div>
 
                           <div className="space-y-2 pt-1">
-                            <button
-                              onClick={() => openPaypalModalForPlayer(p)}
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95"
-                            >
-                              <Icons.CreditCard className="w-3.5 h-3.5" />
-                              <span>PayPal an Erwin D.</span>
-                            </button>
+                            {!isPaid && (
+                              <button
+                                onClick={() => openPaypalModalForPlayer(p)}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95"
+                              >
+                                <Icons.CreditCard className="w-3.5 h-3.5" />
+                                <span>PayPal an Erwin D.</span>
+                              </button>
+                            )}
 
                             {isAdminMode && (
                               <button
