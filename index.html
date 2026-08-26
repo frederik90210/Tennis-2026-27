@@ -189,7 +189,7 @@
       { week: 31, date: '2027-04-19', players: ['FR', 'MZ', 'ED', 'FD'] },
     ];
 
-    const INITIAL_PAID_STATUS = { FB: true, FR: true, ED: true, FD: true };
+    const INITIAL_PAID_STATUS = { FB: true, FR: true, ED: true, FD: true, JW: true };
 
     const TUTORIAL_STEPS = [
       {
@@ -802,7 +802,6 @@
         }`}>
           <div className="max-w-6xl mx-auto space-y-3 sm:space-y-6 w-full">
             
-            {}
             <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-white rounded-2xl p-3.5 sm:p-6 shadow-xl border border-emerald-800/40 relative overflow-hidden">
               <div className="absolute -right-6 -bottom-8 opacity-20 pointer-events-none text-emerald-300">
                 <TennisBallIcon className="w-44 h-44 sm:w-56 sm:h-56" />
@@ -822,7 +821,6 @@
                 </h1>
               </div>
 
-              {}
               <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-3 border-t border-emerald-800/40">
                 <button
                   onClick={() => setActiveTab('plan')}
@@ -913,7 +911,6 @@
               </div>
             </div>
 
-            {}
             {activeTab === 'plan' && (
               <div className="space-y-3 sm:space-y-4">
                 
@@ -1113,7 +1110,6 @@
               </div>
             )}
 
-            {}
             {activeTab === 'myDates' && (
               <div id="tutorial-my-dates-sec" className={`space-y-4 rounded-2xl transition-all scroll-mt-16 sm:scroll-mt-20 ${
                 currentTutorialObj?.highlightId === 'tutorial-my-dates-sec' ? 'tutorial-highlight p-1 ring-4 ring-amber-400' : ''
@@ -1238,7 +1234,6 @@
               </div>
             )}
 
-            {}
             {activeTab === 'costs' && (
               <div id="tutorial-costs-sec" className={`space-y-6 scroll-mt-16 sm:scroll-mt-20 ${
                 currentTutorialObj?.highlightId === 'tutorial-costs-sec' ? 'tutorial-highlight p-1 rounded-2xl ring-4 ring-amber-400' : ''
@@ -1376,7 +1371,6 @@
               </div>
             )}
 
-            {}
             {isAdminMode && activeTab === 'players' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
@@ -1435,7 +1429,6 @@
               </div>
             )}
 
-            {}
             {isAdminMode && activeTab === 'rules' && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-2xl border shadow-sm space-y-1 ${
@@ -1501,7 +1494,6 @@
 
           </div>
 
-          {}
           {tutorialStep !== null && currentTutorialObj && (
             <div className="fixed inset-0 z-50 bg-black/40 flex p-2.5 sm:p-4 pointer-events-auto transition-all items-end pb-3 justify-center sm:items-center sm:pb-0">
               <div className="w-full max-w-md max-h-[85vh] overflow-y-auto bg-zinc-900 border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200 relative z-30">
@@ -1691,7 +1683,6 @@
             </div>
           )}
 
-          {}
           {pinModalOpen && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-xs rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1756,7 +1747,6 @@
             </div>
           )}
 
-          {}
           {paypalModalOpen && selectedPaypalPlayer && (
             <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 space-y-4 animate-in fade-in zoom-in duration-150 ${
@@ -1828,7 +1818,6 @@
             </div>
           )}
 
-          {}
           {savedNoticeOpen && (
             <div className="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 text-xs sm:text-sm font-bold animate-in fade-in slide-in-from-bottom duration-200">
               <Icons.CheckCircle className="w-5 h-5 text-emerald-200" />
